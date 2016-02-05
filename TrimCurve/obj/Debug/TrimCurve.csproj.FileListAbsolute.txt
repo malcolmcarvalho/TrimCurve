@@ -1,0 +1,12 @@
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\bin\Debug\TrimCurve.exe.config
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\bin\Debug\TrimCurve.exe
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\bin\Debug\TrimCurve.pdb
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\MainWindow.baml
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\MainWindow.g.cs
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\App.g.cs
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\TrimCurve_MarkupCompile.cache
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\TrimCurve.g.resources
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\TrimCurve.Properties.Resources.resources
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\TrimCurve.csproj.GenerateResource.Cache
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\TrimCurve.exe
+C:\malcolm\CodeProjects\TrimCurve\TrimCurve\obj\Debug\TrimCurve.pdb

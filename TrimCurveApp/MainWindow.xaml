@@ -1,0 +1,161 @@
+﻿<Window x:Class="TrimCurveApp.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Wpf" 
+        xmlns:local="clr-namespace:TrimCurveApp"
+        mc:Ignorable="d"
+        Title="Trim Curve" Height="550" Width="1000"
+        ResizeMode="NoResize">
+    <Window.Resources>
+        <Style x:Key="ShipDetailLabelStyle" TargetType="Label">
+            <Setter Property="Width" Value="120" />
+            <Setter Property="HorizontalAlignment" Value="Left" />
+        </Style>
+        <Style x:Key="ShipParticularValueStyle" TargetType="Control">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Height" Value="25" />
+            <Setter Property="Width" Value="100" />
+        </Style>
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="6*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Margin="5" Orientation="Horizontal">
+            <Label Content="Select ship:" Height="30"/>
+            <ComboBox Width="150" Height="30">
+                <ComboBoxItem>Ship1</ComboBoxItem>
+                <ComboBoxItem IsSelected="True">Ship2</ComboBoxItem>
+                <ComboBoxItem>Ship3</ComboBoxItem>
+            </ComboBox>
+        </StackPanel>
+        <Grid Margin="5" Grid.Column="0" Grid.Row="1">
+            <TabControl>
+                <TabItem Name="PowerKWTab">
+                    <TabItem.Header>
+                        <TextBlock Text="Power (kW)" />
+                    </TabItem.Header>
+
+                    <oxy:Plot>
+                        <oxy:LineSeries ItemsSource="{Binding Path=Points}" DataFieldX="X" DataFieldY="Y" />
+                    </oxy:Plot>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="Power (%)" />
+                    </TabItem.Header>
+                    <StackPanel Margin="15" Orientation="Vertical">
+                        <StackPanel Margin="0,0,0,20" Orientation="Horizontal">
+                            <Label Content="Draft (m):" />
+                            <TextBox Width="50" />
+                            <Label Margin="10,0,0,0" Content="Speed (knots):" />
+                            <TextBox Width="50" />
+                            <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show trim curve" />
+                        </StackPanel>
+                        <Border BorderThickness="1"
+                                BorderBrush="#FF000000"
+                                VerticalAlignment="Top">
+                            <Image Source="Resources\Draft-Speed.png"/>
+                        </Border>
+                    </StackPanel>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="Power Overview" />
+                    </TabItem.Header>
+                    <StackPanel Margin="20" Orientation="Vertical">
+                        <StackPanel Margin="0,0,0,20" Orientation="Horizontal">
+                            <Label Content="Mean Draft (m): " />
+                            <TextBox Width="50" />
+                            <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show trim curve"/>
+                        </StackPanel>
+                        <Border BorderThickness="1"
+                                BorderBrush="#FF000000"
+                                VerticalAlignment="Top">
+                            <Image Source="Resources\MeanDraft.png"/>
+                        </Border>
+                    </StackPanel>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="SFOC" />
+                    </TabItem.Header>
+                    <StackPanel Margin="20" VerticalAlignment="Center" Orientation="Vertical">
+                        <Border BorderThickness="1"
+                                BorderBrush="#FF000000"
+                                VerticalAlignment="Top">
+                            <Image Source="Resources\Speed-FuelConsumption.png"/>
+                        </Border>
+                    </StackPanel>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="Ship particulars" />
+                    </TabItem.Header>
+                    <StackPanel Margin="20">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Ship name:" />
+                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="Long ship name"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="IMO number:" />
+                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="23456"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="LBP:" />
+                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="110 m"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Breadth:" />
+                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="50 m"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft:" />
+                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="25 m"/>
+                        </StackPanel>
+                    </StackPanel>
+                </TabItem>
+                <TabItem>
+                    <TabItem.Header>
+                        <TextBlock Text="Dynamic Data" />
+                    </TabItem.Header>
+                    <StackPanel Margin="20">
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at aft:" />
+                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="25 m"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at fwd:" />
+                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="26 m"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Present trim:" />
+                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="100 m"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal">
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Fule price in USD:" />
+                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="100"/>
+                        </StackPanel>
+                    </StackPanel>
+                </TabItem>
+            </TabControl>
+        </Grid>
+        <GroupBox Margin="10" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Draft Measures">
+            <StackPanel Margin="0,40,0,0" Orientation="Vertical">
+                <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Label Content="Fuel (t/day): "></Label>
+                    <TextBox Width="80"></TextBox>
+                    <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show draft" />
+                </StackPanel>
+                <Image Width="300" Height="Auto" Grid.Column="1" Source="C:\Malcolm\CodeProjects\TrimCurve\TrimCurveApp\Resources\Aft-Fwd-Draft.png"></Image>
+            </StackPanel>
+        </GroupBox>
+    </Grid>
+</Window>

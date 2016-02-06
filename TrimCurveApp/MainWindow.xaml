@@ -19,6 +19,9 @@
             <Setter Property="Width" Value="100" />
         </Style>
     </Window.Resources>
+    <Window.DataContext>
+        <local:MainWindowViewModel/>
+    </Window.DataContext>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*"/>
@@ -42,10 +45,7 @@
                     <TabItem.Header>
                         <TextBlock Text="Power (kW)" />
                     </TabItem.Header>
-
-                    <oxy:Plot>
-                        <oxy:LineSeries ItemsSource="{Binding Path=Points}" DataFieldX="X" DataFieldY="Y" />
-                    </oxy:Plot>
+                    <oxy:PlotView Model="{Binding AbsolutePowerUsagePlotModel}"/>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
@@ -54,16 +54,17 @@
                     <StackPanel Margin="15" Orientation="Vertical">
                         <StackPanel Margin="0,0,0,20" Orientation="Horizontal">
                             <Label Content="Draft (m):" />
-                            <TextBox Width="50" />
+                            <TextBox x:Name="Draft" Width="50" />
                             <Label Margin="10,0,0,0" Content="Speed (knots):" />
                             <TextBox Width="50" />
                             <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show trim curve" />
                         </StackPanel>
-                        <Border BorderThickness="1"
+                        <oxy:PlotView Model="{Binding PowerSavingsPlotModel}"/>
+                        <!--<Border BorderThickness="1"
                                 BorderBrush="#FF000000"
                                 VerticalAlignment="Top">
                             <Image Source="Resources\Draft-Speed.png"/>
-                        </Border>
+                        </Border>-->
                     </StackPanel>
                 </TabItem>
                 <TabItem>

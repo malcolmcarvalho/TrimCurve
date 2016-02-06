@@ -25,11 +25,5 @@ namespace TrimCurveApp
         {
             InitializeComponent();
         }
-
-        public void PlotGraph()
-        {
-            OxyPlot.Wpf.PlotView plot = new PlotView();
-            OxyPlot.Wpf.LineSeries series = new LineSeries();
-        }
     }
 }

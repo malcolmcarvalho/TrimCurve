@@ -16,7 +16,11 @@ namespace TrimCurveApp
     class MainWindowViewModel
     {
         private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FFFF0000");
+
         private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
+        private static string TRIM = "Trim";
+        private static string POWER_USAGE = "Power usage";
+        private static string POWER_SAVINGS = "Power savings %";
 
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
         public PlotModel PowerSavingsPlotModel { get; private set; }
@@ -41,10 +45,6 @@ namespace TrimCurveApp
 
             var filteredPowerRecords = PowerRecords.Where(x => x.Draft == Draft && x.Speed == Speed);
 
-            var powerUsageSeries = new LineSeries();
-            var powerSavingsSeries = new LineSeries();
-            powerUsageSeries.Smooth = true;
-            powerSavingsSeries.Smooth = true;
             IList<DataPoint> puPoints = new List<DataPoint>();
             IList<DataPoint> psPoints = new List<DataPoint>();
 
@@ -68,22 +68,17 @@ namespace TrimCurveApp
                     InterpolateGraphPointsFroMissingDraftAndSpeed(psPoints, puPoints);
             }
 
-            powerSavingsSeries.ItemsSource = psPoints;
-            powerSavingsSeries.MarkerType = MarkerType.Circle;
-            powerSavingsSeries.MarkerFill = LINE_SERIES_COLOR;
-            powerSavingsSeries.Color = LINE_SERIES_COLOR;
-            PowerSavingsPlotModel.Series.Add(powerSavingsSeries);
-            SetPlotModelAxes(PowerSavingsPlotModel, psPoints, "Trim", "Power savings %");
-
-            powerUsageSeries.ItemsSource = puPoints;
-            powerUsageSeries.MarkerType = MarkerType.Circle;
-            powerUsageSeries.MarkerFill = LINE_SERIES_COLOR;
-            powerUsageSeries.Color = LINE_SERIES_COLOR;
-            AbsolutePowerUsagePlotModel.Series.Add(powerUsageSeries);
-            SetPlotModelAxes(AbsolutePowerUsagePlotModel, puPoints, "Trim", "Power");
+            if (psPoints.Any() && puPoints.Any())
+            {
+                UpdateGraph(psPoints, PowerSavingsPlotModel, TRIM, POWER_SAVINGS);
+                UpdateGraph(puPoints, AbsolutePowerUsagePlotModel, TRIM, POWER_USAGE);
+            }
         }
 
-        private void InterpolateGraphPointsForMissingSpeed(IEnumerable<PowerConsumptionRecord> draftMatches, IList<DataPoint> psPoints, IList<DataPoint> puPoints)
+        private void InterpolateGraphPointsForMissingSpeed(
+            IEnumerable<PowerConsumptionRecord> draftMatches,
+            IList<DataPoint> psPoints,
+            IList<DataPoint> puPoints)
         {
             var lowerRecords = GetPrevSpeedRecords(draftMatches);
             var upperRecords = GetNextSpeedRecords(draftMatches);
@@ -99,7 +94,10 @@ namespace TrimCurveApp
             GenerateGraphPoints(lowerRecords, upperRecords, psPoints, puPoints, wtFunction);
         }
 
-        private void InterpolateGraphPointsForMissingDraft(IEnumerable<PowerConsumptionRecord> speedMatches, IList<DataPoint> psPoints, IList<DataPoint> puPoints)
+        private void InterpolateGraphPointsForMissingDraft(
+            IEnumerable<PowerConsumptionRecord> speedMatches,
+            IList<DataPoint> psPoints,
+            IList<DataPoint> puPoints)
         {
             var lowerRecords = GetPrevDraftRecords(speedMatches);
             var upperRecords = GetNextDraftRecords(speedMatches);
@@ -115,7 +113,9 @@ namespace TrimCurveApp
             GenerateGraphPoints(lowerRecords, upperRecords, psPoints, puPoints, wtFunction);
         }
 
-        private void InterpolateGraphPointsFroMissingDraftAndSpeed(IList<DataPoint> psPoints, IList<DataPoint> puPoints)
+        private void InterpolateGraphPointsFroMissingDraftAndSpeed(
+            IList<DataPoint> psPoints,
+            IList<DataPoint> puPoints)
         {
             var lowerSpeedRecords = GetPrevSpeedRecords(PowerRecords);
             var upperSpeedRecords = GetNextSpeedRecords(PowerRecords);
@@ -132,6 +132,22 @@ namespace TrimCurveApp
             GenerateGraphPoints(leftLowerRecords, leftUpperRecords, rightLowerRecords, rightUpperRecords, psPoints, puPoints);
         }
 
+        private void UpdateGraph(
+            IEnumerable<DataPoint> points,
+            PlotModel plotModel,
+            string xAxis,
+            string yAxis)
+        {
+            var lineSeries = new LineSeries();
+            lineSeries.Smooth = true;
+            lineSeries.ItemsSource = points;
+            lineSeries.MarkerType = MarkerType.Circle;
+            lineSeries.MarkerFill = LINE_SERIES_COLOR;
+            lineSeries.Color = LINE_SERIES_COLOR;
+            plotModel.Series.Add(lineSeries);
+            SetPlotModelAxes(plotModel, points, xAxis, yAxis);
+        }
+
         private void ResetPlotModels() {
             AbsolutePowerUsagePlotModel.Series.Clear();
             AbsolutePowerUsagePlotModel.Axes.Clear();
@@ -139,7 +155,10 @@ namespace TrimCurveApp
             PowerSavingsPlotModel.Axes.Clear();
         }
 
-        private void SetPlotModelAxes(PlotModel plotModel, IEnumerable<DataPoint> seriesPoints, string xAxisTitle, string yAxisTitle)
+        private void SetPlotModelAxes(
+            PlotModel plotModel,
+            IEnumerable<DataPoint> seriesPoints,
+            string xAxisTitle, string yAxisTitle)
         {
             double minXVal = seriesPoints.Min<DataPoint>(dp => dp.X);
             double maxXVal = seriesPoints.Max<DataPoint>(dp => dp.X);
@@ -177,8 +196,12 @@ namespace TrimCurveApp
             plotModel.Axes.Add(yAxis);
         }
 
-        private void GenerateGraphPoints(IEnumerable<PowerConsumptionRecord> lowerRecords, IEnumerable<PowerConsumptionRecord> upperRecords,
-            IList<DataPoint> psPoints, IList<DataPoint> puPoints, double wtFunction)
+        private void GenerateGraphPoints(
+            IEnumerable<PowerConsumptionRecord> lowerRecords,
+            IEnumerable<PowerConsumptionRecord> upperRecords,
+            IList<DataPoint> psPoints,
+            IList<DataPoint> puPoints,
+            double wtFunction)
         {
             if (!lowerRecords.Any() || !upperRecords.Any())
             {
@@ -197,8 +220,11 @@ namespace TrimCurveApp
             }
         }
 
-        private void GenerateGraphPoints(IEnumerable<PowerConsumptionRecord> leftLowerRecords, IEnumerable<PowerConsumptionRecord> leftUpperRecords,
-            IEnumerable<PowerConsumptionRecord> rightLowerRecords, IEnumerable<PowerConsumptionRecord> rightUpperRecords,
+        private void GenerateGraphPoints(
+            IEnumerable<PowerConsumptionRecord> leftLowerRecords,
+            IEnumerable<PowerConsumptionRecord> leftUpperRecords,
+            IEnumerable<PowerConsumptionRecord> rightLowerRecords,
+            IEnumerable<PowerConsumptionRecord> rightUpperRecords,
             IList<DataPoint> psPoints, IList<DataPoint> puPoints)
         {
             Debug.Assert(leftLowerRecords.Count() == leftUpperRecords.Count());

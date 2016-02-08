@@ -14,6 +14,7 @@ namespace TrimCurveApp
     class MainWindowViewModel
     {
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
+        public PlotModel PowerSavingsPlotModel { get; private set; }
         public double Draft { get; set; }
         public double Speed { get; set; }
 

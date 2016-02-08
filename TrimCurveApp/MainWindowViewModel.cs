@@ -15,7 +15,8 @@ namespace TrimCurveApp
 {
     class MainWindowViewModel
     {
-        private static OxyColor lineSeriesColor = OxyColor.Parse("#FFFF0000");
+        private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FFFF0000");
+        private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
 
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
         public PlotModel PowerSavingsPlotModel { get; private set; }
@@ -44,8 +45,8 @@ namespace TrimCurveApp
             var powerSavingsSeries = new LineSeries();
             powerUsageSeries.Smooth = true;
             powerSavingsSeries.Smooth = true;
-            var puPoints = new List<DataPoint>();
-            var psPoints = new List<DataPoint>();
+            IList<DataPoint> puPoints = new List<DataPoint>();
+            IList<DataPoint> psPoints = new List<DataPoint>();
 
             if (filteredPowerRecords.Any())
             {
@@ -60,67 +61,75 @@ namespace TrimCurveApp
                 var draftMatches = PowerRecords.Where(x => x.Draft == Draft);
                 var speedMatches = PowerRecords.Where(x => x.Speed == Speed);
                 if (draftMatches.Any())
-                {
-                    var lowerRecords = GetPrevSpeedRecords(draftMatches);
-                    var upperRecords = GetNextSpeedRecords(draftMatches);
-                    if (!lowerRecords.Any() || !upperRecords.Any())
-                    {
-                        MessageBox.Show("Draft or speed values provided are not within range. Cannot redraw the graphs.");
-                        return;
-                    }
-
-                    var lowerSpeed = lowerRecords.FirstOrDefault().Speed;
-                    var upperSpeed = upperRecords.FirstOrDefault().Speed;
-                    var wtFunction = (Speed - lowerSpeed) / (upperSpeed - lowerSpeed);
-                    GenerateGraphPoints(lowerRecords, upperRecords, psPoints, puPoints, wtFunction);
-                }
+                    InterpolateGraphPointsForMissingSpeed(draftMatches, psPoints, puPoints);
                 else if (speedMatches.Any())
-                {
-                    var lowerRecords = GetPrevDraftRecords(speedMatches);
-                    var upperRecords = GetNextDraftRecords(speedMatches);
-                    if (!lowerRecords.Any() || !upperRecords.Any())
-                    {
-                        MessageBox.Show("Draft or speed values provided are not within range. Cannot redraw the graphs.");
-                        return;
-                    }
-
-                    var lowerDraft = lowerRecords.FirstOrDefault().Draft;
-                    var upperDraft = upperRecords.FirstOrDefault().Draft;
-                    var wtFunction = (Draft - lowerDraft) / (upperDraft - lowerDraft);
-                    GenerateGraphPoints(lowerRecords, upperRecords, psPoints, puPoints, wtFunction);
-                }
+                    InterpolateGraphPointsForMissingDraft(speedMatches, psPoints, puPoints);
                 else
-                {
-                    var lowerSpeedRecords = GetPrevSpeedRecords(PowerRecords);
-                    var upperSpeedRecords = GetNextSpeedRecords(PowerRecords);
-                    if (!lowerSpeedRecords.Any() || !upperSpeedRecords.Any())
-                    {
-                        MessageBox.Show("Draft or speed values provided are not within range. Cannot redraw the graphs.");
-                        return;
-                    }
-
-                    var leftLowerRecords = GetPrevDraftRecords(lowerSpeedRecords);
-                    var leftUpperRecords = GetNextDraftRecords(lowerSpeedRecords);
-                    var rightLowerRecords = GetPrevDraftRecords(upperSpeedRecords);
-                    var rightUpperRecords = GetNextDraftRecords(upperSpeedRecords);
-                    GenerateGraphPoints(leftLowerRecords, leftUpperRecords, rightLowerRecords, rightUpperRecords, psPoints, puPoints);
-                }
+                    InterpolateGraphPointsFroMissingDraftAndSpeed(psPoints, puPoints);
             }
 
             powerSavingsSeries.ItemsSource = psPoints;
             powerSavingsSeries.MarkerType = MarkerType.Circle;
-            powerSavingsSeries.MarkerFill = lineSeriesColor;
-            powerSavingsSeries.Color = lineSeriesColor;
+            powerSavingsSeries.MarkerFill = LINE_SERIES_COLOR;
+            powerSavingsSeries.Color = LINE_SERIES_COLOR;
             PowerSavingsPlotModel.Series.Add(powerSavingsSeries);
             SetPlotModelAxes(PowerSavingsPlotModel, psPoints, "Trim", "Power savings %");
 
             powerUsageSeries.ItemsSource = puPoints;
             powerUsageSeries.MarkerType = MarkerType.Circle;
-            powerUsageSeries.MarkerFill = lineSeriesColor;
-            powerUsageSeries.Color = lineSeriesColor;
+            powerUsageSeries.MarkerFill = LINE_SERIES_COLOR;
+            powerUsageSeries.Color = LINE_SERIES_COLOR;
             AbsolutePowerUsagePlotModel.Series.Add(powerUsageSeries);
             SetPlotModelAxes(AbsolutePowerUsagePlotModel, puPoints, "Trim", "Power");
+        }
 
+        private void InterpolateGraphPointsForMissingSpeed(IEnumerable<PowerConsumptionRecord> draftMatches, IList<DataPoint> psPoints, IList<DataPoint> puPoints)
+        {
+            var lowerRecords = GetPrevSpeedRecords(draftMatches);
+            var upperRecords = GetNextSpeedRecords(draftMatches);
+            if (!lowerRecords.Any() || !upperRecords.Any())
+            {
+                MessageBox.Show(INVALID_RANGE_MESSAGE);
+                return;
+            }
+
+            var lowerSpeed = lowerRecords.FirstOrDefault().Speed;
+            var upperSpeed = upperRecords.FirstOrDefault().Speed;
+            var wtFunction = (Speed - lowerSpeed) / (upperSpeed - lowerSpeed);
+            GenerateGraphPoints(lowerRecords, upperRecords, psPoints, puPoints, wtFunction);
+        }
+
+        private void InterpolateGraphPointsForMissingDraft(IEnumerable<PowerConsumptionRecord> speedMatches, IList<DataPoint> psPoints, IList<DataPoint> puPoints)
+        {
+            var lowerRecords = GetPrevDraftRecords(speedMatches);
+            var upperRecords = GetNextDraftRecords(speedMatches);
+            if (!lowerRecords.Any() || !upperRecords.Any())
+            {
+                MessageBox.Show(INVALID_RANGE_MESSAGE);
+                return;
+            }
+
+            var lowerDraft = lowerRecords.FirstOrDefault().Draft;
+            var upperDraft = upperRecords.FirstOrDefault().Draft;
+            var wtFunction = (Draft - lowerDraft) / (upperDraft - lowerDraft);
+            GenerateGraphPoints(lowerRecords, upperRecords, psPoints, puPoints, wtFunction);
+        }
+
+        private void InterpolateGraphPointsFroMissingDraftAndSpeed(IList<DataPoint> psPoints, IList<DataPoint> puPoints)
+        {
+            var lowerSpeedRecords = GetPrevSpeedRecords(PowerRecords);
+            var upperSpeedRecords = GetNextSpeedRecords(PowerRecords);
+            if (!lowerSpeedRecords.Any() || !upperSpeedRecords.Any())
+            {
+                MessageBox.Show(INVALID_RANGE_MESSAGE);
+                return;
+            }
+
+            var leftLowerRecords = GetPrevDraftRecords(lowerSpeedRecords);
+            var leftUpperRecords = GetNextDraftRecords(lowerSpeedRecords);
+            var rightLowerRecords = GetPrevDraftRecords(upperSpeedRecords);
+            var rightUpperRecords = GetNextDraftRecords(upperSpeedRecords);
+            GenerateGraphPoints(leftLowerRecords, leftUpperRecords, rightLowerRecords, rightUpperRecords, psPoints, puPoints);
         }
 
         private void ResetPlotModels() {
@@ -169,11 +178,11 @@ namespace TrimCurveApp
         }
 
         private void GenerateGraphPoints(IEnumerable<PowerConsumptionRecord> lowerRecords, IEnumerable<PowerConsumptionRecord> upperRecords,
-            List<DataPoint> psPoints, List<DataPoint> puPoints, double wtFunction)
+            IList<DataPoint> psPoints, IList<DataPoint> puPoints, double wtFunction)
         {
             if (!lowerRecords.Any() || !upperRecords.Any())
             {
-                MessageBox.Show("Draft or speed values provided are not within range. Cannot redraw the graphs.");
+                MessageBox.Show(INVALID_RANGE_MESSAGE);
                 return;
             }
 
@@ -190,7 +199,7 @@ namespace TrimCurveApp
 
         private void GenerateGraphPoints(IEnumerable<PowerConsumptionRecord> leftLowerRecords, IEnumerable<PowerConsumptionRecord> leftUpperRecords,
             IEnumerable<PowerConsumptionRecord> rightLowerRecords, IEnumerable<PowerConsumptionRecord> rightUpperRecords,
-            List<DataPoint> psPoints, List<DataPoint> puPoints)
+            IList<DataPoint> psPoints, IList<DataPoint> puPoints)
         {
             Debug.Assert(leftLowerRecords.Count() == leftUpperRecords.Count());
             Debug.Assert(rightLowerRecords.Count() == rightUpperRecords.Count());
@@ -198,7 +207,7 @@ namespace TrimCurveApp
 
             if (!leftLowerRecords.Any() || !leftUpperRecords.Any() || !rightLowerRecords.Any() || !rightUpperRecords.Any())
             {
-                MessageBox.Show("Draft or speed values provided are not within range. Cannot redraw the graphs.");
+                MessageBox.Show(INVALID_RANGE_MESSAGE);
                 return;
             }
 

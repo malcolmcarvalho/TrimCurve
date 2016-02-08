@@ -53,7 +53,7 @@ namespace TrimCurveApp
                 foreach (var powerRec in filteredPowerRecords)
                 {
                     puPoints.Add(new DataPoint(powerRec.Trim, powerRec.Power));
-                    psPoints.Add(new DataPoint(powerRec.Trim, powerRec.PowerSavingPercentage));
+                    psPoints.Add(new DataPoint(powerRec.Trim, powerRec.PowerSavings));
                 }
             }
             else
@@ -218,7 +218,7 @@ namespace TrimCurveApp
             {
                 var upperMatch = upperRecords.Where(x => x.Trim == rec.Trim).FirstOrDefault();
                 var newPower = rec.Power + wtFunction * (upperMatch.Power - rec.Power);
-                var newPowerSavings = rec.PowerSavingPercentage + wtFunction * (upperMatch.PowerSavingPercentage - rec.PowerSavingPercentage);
+                var newPowerSavings = rec.PowerSavings + wtFunction * (upperMatch.PowerSavings - rec.PowerSavings);
                 puPoints.Add(new DataPoint(rec.Trim, newPower));
                 psPoints.Add(new DataPoint(rec.Trim, newPowerSavings));
             }
@@ -262,8 +262,8 @@ namespace TrimCurveApp
                 puPoints.Add(new DataPoint(rec.Trim, finalAvg));
 
                 // power savings
-                avg1 = rec.PowerSavingPercentage + speedWtFunction * (rightLowerMatch.PowerSavingPercentage - rec.PowerSavingPercentage);
-                avg2 = leftUpperMatch.PowerSavingPercentage + speedWtFunction * (rightUpperMatch.PowerSavingPercentage - leftUpperMatch.PowerSavingPercentage);
+                avg1 = rec.PowerSavings + speedWtFunction * (rightLowerMatch.PowerSavings - rec.PowerSavings);
+                avg2 = leftUpperMatch.PowerSavings + speedWtFunction * (rightUpperMatch.PowerSavings - leftUpperMatch.PowerSavings);
                 finalAvg = avg1 + draftWtFunction * (avg2 - avg1);
                 psPoints.Add(new DataPoint(rec.Trim, finalAvg));
             }

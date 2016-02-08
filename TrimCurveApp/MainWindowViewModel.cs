@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using Excel = Microsoft.Office.Interop.Excel;
+using Excel = Microsoft.Office.Interop.Excel; 
 
 namespace TrimCurveApp
 {
@@ -16,7 +16,7 @@ namespace TrimCurveApp
 
         private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
         private static string TRIM = "Trim";
-        private static string POWER_USAGE = "Power usage";
+        private static string POWER_USAGE = "Power usage (kW)";
         private static string POWER_SAVINGS = "Power savings %";
 
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }

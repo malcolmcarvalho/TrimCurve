@@ -29,6 +29,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="1*"/>
+            <RowDefinition Height="0.5*"/>
             <RowDefinition Height="6*"/>
         </Grid.RowDefinitions>
         <StackPanel Margin="5" Orientation="Horizontal">
@@ -39,33 +40,28 @@
                 <ComboBoxItem>Ship3</ComboBoxItem>
             </ComboBox>
         </StackPanel>
-        <Grid Margin="5" Grid.Column="0" Grid.Row="1">
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
+            <Label Content="Draft (m):" Margin="2,2,0,0"/>
+            <TextBox x:Name="Draft" Width="50" Height="20" Margin="2,2,0,0"
+                     Text="{Binding Mode=TwoWay, Path=Draft}"/>
+            <Label Content="Speed (knots):" Margin="2,2,0,0"/>
+            <TextBox Width="50" Height="20" Margin="2,2,0,0"
+                     Text="{Binding Mode=TwoWay, Path=Speed}"/>
+            <Button Name="UpdatePowerGraphs" Padding="10,0,10,0" Margin="2,2,0,0" Content="Update" Height="20" Click="UpdatePowerGraphs_Click"/>
+        </StackPanel>
+        <Grid Margin="5" Grid.Column="0" Grid.Row="2">
             <TabControl>
                 <TabItem Name="PowerKWTab">
                     <TabItem.Header>
                         <TextBlock Text="Power (kW)" />
                     </TabItem.Header>
-                    <oxy:PlotView Model="{Binding AbsolutePowerUsagePlotModel}"/>
+                    <oxy:PlotView Name="AbsolutePowerGraph" Model="{Binding AbsolutePowerUsagePlotModel}"/>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <TextBlock Text="Power (%)" />
                     </TabItem.Header>
-                    <StackPanel Margin="15" Orientation="Vertical">
-                        <StackPanel Margin="0,0,0,20" Orientation="Horizontal">
-                            <Label Content="Draft (m):" />
-                            <TextBox x:Name="Draft" Width="50" />
-                            <Label Margin="10,0,0,0" Content="Speed (knots):" />
-                            <TextBox Width="50" />
-                            <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show trim curve" />
-                        </StackPanel>
-                        <oxy:PlotView Model="{Binding PowerSavingsPlotModel}"/>
-                        <!--<Border BorderThickness="1"
-                                BorderBrush="#FF000000"
-                                VerticalAlignment="Top">
-                            <Image Source="Resources\Draft-Speed.png"/>
-                        </Border>-->
-                    </StackPanel>
+                    <oxy:PlotView Name="PowerSavingsGraph" Model="{Binding PowerSavingsPlotModel}"/>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>

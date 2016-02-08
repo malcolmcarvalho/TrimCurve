@@ -196,7 +196,7 @@ namespace TrimCurveApp
             Debug.Assert(rightLowerRecords.Count() == rightUpperRecords.Count());
             Debug.Assert(leftLowerRecords.Count() == rightLowerRecords.Count());
 
-            if (!leftLowerRecords.Any() || !leftUpperRecords.Any() || rightLowerRecords.Any() || rightUpperRecords.Any())
+            if (!leftLowerRecords.Any() || !leftUpperRecords.Any() || !rightLowerRecords.Any() || !rightUpperRecords.Any())
             {
                 MessageBox.Show("Draft or speed values provided are not within range. Cannot redraw the graphs.");
                 return;

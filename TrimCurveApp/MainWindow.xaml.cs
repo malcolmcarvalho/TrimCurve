@@ -25,5 +25,14 @@ namespace TrimCurveApp
         {
             InitializeComponent();
         }
+
+        private void UpdatePowerGraphs_Click(object sender, RoutedEventArgs e)
+        {
+            var vm = DataContext as MainWindowViewModel;
+            vm.UpdatePowerGraphs();
+
+            AbsolutePowerGraph.InvalidatePlot();
+            PowerSavingsGraph.InvalidatePlot();
+        }
     }
 }

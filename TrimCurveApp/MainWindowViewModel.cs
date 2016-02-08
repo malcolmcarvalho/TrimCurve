@@ -296,7 +296,11 @@ namespace TrimCurveApp
         private void ReadPowerValuesFromXLS()
         {
             var xlApp = new Excel.Application();
-            var xlWorkbook = xlApp.Workbooks.Open(@"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\TrimCurveModifiedSample.xlsx", 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
+            var xlWorkbook = xlApp.Workbooks.Open(
+                @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\TrimCurveModifiedSample.xlsx",
+                0, true, 5, "", "", true,
+                Microsoft.Office.Interop.Excel.XlPlatform.xlWindows,
+                "\t", false, false, 0, true, 1, 0);
             var xlWorksheet = xlApp.Worksheets.get_Item(1);
 
             var range = xlWorksheet.UsedRange;
@@ -305,28 +309,13 @@ namespace TrimCurveApp
                 double draft = (double)(range.Cells[rCnt, 1] as Excel.Range).Value2;
                 double trim = (double)(range.Cells[rCnt, 2] as Excel.Range).Value2;
 
-                double power10 = (double)(range.Cells[rCnt, 3] as Excel.Range).Value2;
-                double power12 = (double)(range.Cells[rCnt, 4] as Excel.Range).Value2;
-                double power14 = (double)(range.Cells[rCnt, 5] as Excel.Range).Value2;
-                double power16 = (double)(range.Cells[rCnt, 6] as Excel.Range).Value2;
-                double power18 = (double)(range.Cells[rCnt, 7] as Excel.Range).Value2;
-                double power20 = (double)(range.Cells[rCnt, 8] as Excel.Range).Value2;
-
-                double percentage10 = (double)(range.Cells[rCnt, 10] as Excel.Range).Value2;
-                double percentage12 = (double)(range.Cells[rCnt, 11] as Excel.Range).Value2;
-                double percentage14 = (double)(range.Cells[rCnt, 12] as Excel.Range).Value2;
-                double percentage16 = (double)(range.Cells[rCnt, 13] as Excel.Range).Value2;
-                double percentage18 = (double)(range.Cells[rCnt, 14] as Excel.Range).Value2;
-                double percentage20 = (double)(range.Cells[rCnt, 15] as Excel.Range).Value2;
-
-                PowerConsumptionRecord[] recArray = new PowerConsumptionRecord[6];
-                recArray[0] = new PowerConsumptionRecord(draft, 10, trim, power10, percentage10);
-                recArray[1] = new PowerConsumptionRecord(draft, 12, trim, power12, percentage12);
-                recArray[2] = new PowerConsumptionRecord(draft, 14, trim, power14, percentage14);
-                recArray[3] = new PowerConsumptionRecord(draft, 16, trim, power16, percentage16);
-                recArray[4] = new PowerConsumptionRecord(draft, 18, trim, power18, percentage18);
-                recArray[5] = new PowerConsumptionRecord(draft, 20, trim, power20, percentage20);
-                PowerRecords.AddRange(recArray);
+                for (int i = 0; i < 6; i++)
+                {
+                    var powerUsage = (double)(range.Cells[rCnt, i + 3] as Excel.Range).Value2;
+                    var powerSavings = (double)(range.Cells[rCnt, i + 10] as Excel.Range).Value2 * 100;
+                    PowerConsumptionRecord rec = new PowerConsumptionRecord(draft, 10 + i * 2, trim, powerUsage, powerSavings);
+                    PowerRecords.Add(rec);
+                }
             }
 
             xlWorkbook.Close(true, null, null);

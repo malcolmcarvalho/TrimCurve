@@ -9,11 +9,14 @@ using Microsoft.CSharp;
 using Excel = Microsoft.Office.Interop.Excel;
 using System.Windows;
 using System.Diagnostics;
+using OxyPlot.Axes;
 
 namespace TrimCurveApp
 {
     class MainWindowViewModel
     {
+        private static OxyColor lineSeriesColor = OxyColor.Parse("#FFFF0000");
+
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
         public PlotModel PowerSavingsPlotModel { get; private set; }
         public double Draft { get; set; }
@@ -105,9 +108,19 @@ namespace TrimCurveApp
             }
 
             powerSavingsSeries.ItemsSource = psPoints;
+            powerSavingsSeries.MarkerType = MarkerType.Circle;
+            powerSavingsSeries.MarkerFill = lineSeriesColor;
+            powerSavingsSeries.Color = lineSeriesColor;
             PowerSavingsPlotModel.Series.Add(powerSavingsSeries);
+            SetPlotModelAxes(PowerSavingsPlotModel, psPoints, "Trim", "Power savings %");
+
             powerUsageSeries.ItemsSource = puPoints;
+            powerUsageSeries.MarkerType = MarkerType.Circle;
+            powerUsageSeries.MarkerFill = lineSeriesColor;
+            powerUsageSeries.Color = lineSeriesColor;
             AbsolutePowerUsagePlotModel.Series.Add(powerUsageSeries);
+            SetPlotModelAxes(AbsolutePowerUsagePlotModel, puPoints, "Trim", "Power");
+
         }
 
         private void ResetPlotModels() {
@@ -116,6 +129,43 @@ namespace TrimCurveApp
             PowerSavingsPlotModel.Series.Clear();
             PowerSavingsPlotModel.Axes.Clear();
         }
+
+        private void SetPlotModelAxes(PlotModel plotModel, IEnumerable<DataPoint> seriesPoints, string xAxisTitle, string yAxisTitle)
+        {
+            double minXVal = seriesPoints.Min<DataPoint>(dp => dp.X);
+            double maxXVal = seriesPoints.Max<DataPoint>(dp => dp.X);
+            double minYVal = seriesPoints.Min<DataPoint>(dp => dp.Y);
+            double maxYVal = seriesPoints.Max<DataPoint>(dp => dp.Y);
+
+            const double offset = 0.1;
+            var xRange = maxXVal - minXVal;
+            var yRange = maxYVal - minYVal;
+            
+            plotModel.PlotType = PlotType.XY;
+            LinearAxis xAxis = new LinearAxis();
+            xAxis.AbsoluteMinimum = minXVal - offset * xRange;
+            xAxis.AbsoluteMaximum = maxXVal + offset * xRange;
+            xAxis.Position = AxisPosition.Bottom;
+            xAxis.Title = xAxisTitle;
+            xAxis.Zoom(xAxis.AbsoluteMinimum, xAxis.AbsoluteMaximum);
+            xAxis.IsZoomEnabled = false;
+            xAxis.MajorGridlineStyle = LineStyle.Solid;
+            xAxis.MinorGridlineStyle = LineStyle.Dot;
+            xAxis.MajorStep = 1;
+            xAxis.MinorStep = 0.2;
+            plotModel.Axes.Add(xAxis);
+
+            LinearAxis yAxis = new LinearAxis();
+            yAxis.AbsoluteMinimum = minYVal - offset * yRange;
+            yAxis.AbsoluteMaximum = maxYVal + offset * yRange;
+            yAxis.ZoomAtCenter(1.0);
+            yAxis.Position = AxisPosition.Left;
+            yAxis.Title = yAxisTitle;
+            yAxis.Zoom(yAxis.AbsoluteMinimum, yAxis.AbsoluteMaximum);
+            yAxis.IsZoomEnabled = false;
+            yAxis.MajorGridlineStyle = LineStyle.Solid;
+            yAxis.MinorGridlineStyle = LineStyle.Dot;
+            plotModel.Axes.Add(yAxis);
         }
 
         private void GenerateGraphPoints(IEnumerable<PowerConsumptionRecord> lowerRecords, IEnumerable<PowerConsumptionRecord> upperRecords,

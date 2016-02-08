@@ -25,7 +25,7 @@ namespace TrimCurveApp
         {
             Draft = 25;
             Speed = 18;
-            InitPowerRecordsHardCoded();
+            ReadPowerValuesFromXLS();
             AbsolutePowerUsagePlotModel = new PlotModel { Title = "Absolute power usage" };
             PowerSavingsPlotModel = new PlotModel { Title = "Power savings" };
             UpdatePowerGraphs();
@@ -138,7 +138,6 @@ namespace TrimCurveApp
             }
         }
 
-        private void InitPowerRecordsHardCoded()
         private void GenerateGraphPoints(IEnumerable<PowerConsumptionRecord> leftLowerRecords, IEnumerable<PowerConsumptionRecord> leftUpperRecords,
             IEnumerable<PowerConsumptionRecord> rightLowerRecords, IEnumerable<PowerConsumptionRecord> rightUpperRecords,
             List<DataPoint> psPoints, List<DataPoint> puPoints)
@@ -208,6 +207,8 @@ namespace TrimCurveApp
             return lowerGroup.Where(x => x.Draft == lowerGroup.Min<PowerConsumptionRecord>(rec => rec.Draft))
                                          .OrderBy(x => x.Trim);
         }
+
+        private void ReadPowerValuesFromXLS()
         {
             var xlApp = new Excel.Application();
             var xlWorkbook = xlApp.Workbooks.Open(@"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\TrimCurveModifiedSample.xlsx", 0, true, 5, "", "", true, Microsoft.Office.Interop.Excel.XlPlatform.xlWindows, "\t", false, false, 0, true, 1, 0);
@@ -246,27 +247,12 @@ namespace TrimCurveApp
             xlWorkbook.Close(true, null, null);
             xlApp.Quit();
 
-            releaseObject(xlWorksheet);
-            releaseObject(xlWorkbook);
-            releaseObject(xlApp);
-
-
-
-            //double draft = 15;
-            //double basePower = 10000;
-            //for (double speed = 10; speed <= 20; speed += 2) {
-            //    double power = basePower;
-            //    for (int trim = 3; trim >= -3; --trim)
-            //    {
-            //        PowerConsumptionRecord rec = new PowerConsumptionRecord(draft, speed, trim, power, 0);
-            //        PowerRecords.Add(rec);
-            //        power -= 200;
-            //    }
-            //    basePower += 200;
-            //}
+            ReleaseObject(xlWorksheet);
+            ReleaseObject(xlWorkbook);
+            ReleaseObject(xlApp);
         }
 
-        private void releaseObject(object obj)
+        private void ReleaseObject(object obj)
         {
             try
             {

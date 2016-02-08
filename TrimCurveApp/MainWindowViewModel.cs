@@ -165,34 +165,38 @@ namespace TrimCurveApp
             double minYVal = seriesPoints.Min<DataPoint>(dp => dp.Y);
             double maxYVal = seriesPoints.Max<DataPoint>(dp => dp.Y);
 
-            const double offset = 0.1;
-            var xRange = maxXVal - minXVal;
-            var yRange = maxYVal - minYVal;
-            
             plotModel.PlotType = PlotType.XY;
-            LinearAxis xAxis = new LinearAxis();
-            xAxis.AbsoluteMinimum = minXVal - offset * xRange;
-            xAxis.AbsoluteMaximum = maxXVal + offset * xRange;
-            xAxis.Position = AxisPosition.Bottom;
-            xAxis.Title = xAxisTitle;
-            xAxis.Zoom(xAxis.AbsoluteMinimum, xAxis.AbsoluteMaximum);
-            xAxis.IsZoomEnabled = false;
-            xAxis.MajorGridlineStyle = LineStyle.Solid;
-            xAxis.MinorGridlineStyle = LineStyle.Dot;
+            SetXAxisForPlotModel(plotModel, minXVal, maxXVal, xAxisTitle);
+            SetYAxisForPlotModel(plotModel, minYVal, maxYVal, yAxisTitle);
+        }
+
+        private LinearAxis CreateAxisForPlotModel(PlotModel plotModel, double minVal, double maxVal, string title, bool isXAxis)
+        {
+            LinearAxis axis = new LinearAxis();
+            const double offset = 0.1;
+            double range = maxVal - minVal;
+            axis.AbsoluteMinimum = minVal - offset * range;
+            axis.AbsoluteMaximum = maxVal + offset * range;
+            axis.Position = isXAxis ? AxisPosition.Bottom : AxisPosition.Left;
+            axis.Title = title;
+            axis.Zoom(axis.AbsoluteMinimum, axis.AbsoluteMaximum);
+            axis.IsZoomEnabled = false;
+            axis.MajorGridlineStyle = LineStyle.Solid;
+            axis.MinorGridlineStyle = LineStyle.Dot;
+            return axis;
+        }
+
+        private void SetXAxisForPlotModel(PlotModel plotModel, double minVal, double maxVal, string title)
+        {
+            var xAxis = CreateAxisForPlotModel(plotModel, minVal, maxVal, title, true);
             xAxis.MajorStep = 1;
             xAxis.MinorStep = 0.2;
             plotModel.Axes.Add(xAxis);
+        }
 
-            LinearAxis yAxis = new LinearAxis();
-            yAxis.AbsoluteMinimum = minYVal - offset * yRange;
-            yAxis.AbsoluteMaximum = maxYVal + offset * yRange;
-            yAxis.ZoomAtCenter(1.0);
-            yAxis.Position = AxisPosition.Left;
-            yAxis.Title = yAxisTitle;
-            yAxis.Zoom(yAxis.AbsoluteMinimum, yAxis.AbsoluteMaximum);
-            yAxis.IsZoomEnabled = false;
-            yAxis.MajorGridlineStyle = LineStyle.Solid;
-            yAxis.MinorGridlineStyle = LineStyle.Dot;
+        private void SetYAxisForPlotModel(PlotModel plotModel, double minVal, double maxVal, string title)
+        {
+            var yAxis = CreateAxisForPlotModel(plotModel, minVal, maxVal, title, false);
             plotModel.Axes.Add(yAxis);
         }
 

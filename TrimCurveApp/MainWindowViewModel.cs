@@ -1,12 +1,16 @@
 ﻿using OxyPlot;
+using OxyPlot.Annotations;
 using OxyPlot.Axes;
 using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows;
-using Excel = Microsoft.Office.Interop.Excel; 
+using System.Windows.Media.Imaging;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TrimCurveApp
 {
@@ -17,7 +21,7 @@ namespace TrimCurveApp
         private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
         private static string TRIM = "Trim";
         private static string POWER_USAGE = "Power usage (kW)";
-        private static string POWER_SAVINGS = "Power savings %";
+        private static string POWER_SAVINGS = "Relative power savings %";
 
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
         public PlotModel PowerSavingsPlotModel { get; private set; }
@@ -33,7 +37,7 @@ namespace TrimCurveApp
             ReadPowerValuesFromXLS();
             AbsolutePowerUsagePlotModel = new PlotModel { Title = "Absolute power usage" };
             PowerSavingsPlotModel = new PlotModel { Title = "Power savings" };
-            UpdatePowerGraphs();
+            //UpdatePowerGraphs();
         }
 
         public void UpdatePowerGraphs()
@@ -69,6 +73,7 @@ namespace TrimCurveApp
             {
                 UpdateGraph(psPoints, PowerSavingsPlotModel, TRIM, POWER_SAVINGS);
                 UpdateGraph(puPoints, AbsolutePowerUsagePlotModel, TRIM, POWER_USAGE);
+                AddBackgroundColorsToPowerSavingsGraph();
             }
         }
 
@@ -142,14 +147,66 @@ namespace TrimCurveApp
             lineSeries.MarkerFill = LINE_SERIES_COLOR;
             lineSeries.Color = LINE_SERIES_COLOR;
             plotModel.Series.Add(lineSeries);
+
+            plotModel.PlotAreaBackground = OxyColor.FromArgb(255, 255, 255, 255);
             SetPlotModelAxes(plotModel, points, xAxis, yAxis);
+        }
+
+        private OxyImage GetGradientImage(OxyColor color1, OxyColor color2)
+        {
+            int n = 256;
+            var imageData1 = new OxyColor[n, 1];
+            for (int i = 0; i < n; i++)
+            {
+                imageData1[i, 0] = OxyColor.Interpolate(color1, color2, i / (n - 1.0));
+            }
+
+            PngBitmapEncoder encoder = new PngBitmapEncoder();
+            PngEncoder encode = new PngEncoder(new PngEncoderOptions());
+            return new OxyImage(encode.Encode(imageData1));
+        }
+
+        private void AddBackgroundGradient(Axis xAxis, double xStart, double xEnd, OxyColor color1, OxyColor color2)
+        {
+            var image = GetGradientImage(color1, color2);
+            ImageAnnotation redAnnotation = new ImageAnnotation
+            {
+                ImageSource = image,
+                Interpolate = true,
+                Layer = AnnotationLayer.BelowAxes,
+                X = new PlotLength(xStart, PlotLengthUnit.Data),
+                Y = new PlotLength(0, PlotLengthUnit.RelativeToPlotArea),
+                Width = new PlotLength((xEnd - xStart), PlotLengthUnit.Data),
+                Height = new PlotLength(1, PlotLengthUnit.RelativeToPlotArea),
+                HorizontalAlignment = OxyPlot.HorizontalAlignment.Left,
+                VerticalAlignment = OxyPlot.VerticalAlignment.Middle
+            };
+            PowerSavingsPlotModel.Annotations.Add(redAnnotation);
+        }
+
+        private void AddBackgroundColorsToPowerSavingsGraph()
+        {
+            var lineSeries = PowerSavingsPlotModel.Series.ElementAt(0) as LineSeries;
+            var points = lineSeries.ItemsSource as IEnumerable<DataPoint>;
+            var xAxis = PowerSavingsPlotModel.Axes.Where(x => x.Title == TRIM).First();
+
+            var xMin = points.Min(p => p.X);
+            var xMax = points.Max(p => p.X);
+            var xRange = xMax - xMin;
+
+            AddBackgroundGradient(xAxis, xMin, xMin + xRange / 3, OxyColors.Red, OxyColors.Pink);
+            AddBackgroundGradient(xAxis, xMin + xRange / 3, xMin + 2 * xRange / 3, OxyColors.LightYellow, OxyColors.Yellow);
+            AddBackgroundGradient(xAxis, xMin + 2 * xRange / 3, xMax, OxyColors.LightGreen, OxyColors.Green);
         }
 
         private void ResetPlotModels() {
             AbsolutePowerUsagePlotModel.Series.Clear();
             AbsolutePowerUsagePlotModel.Axes.Clear();
+            AbsolutePowerUsagePlotModel.Annotations.Clear();
+
             PowerSavingsPlotModel.Series.Clear();
             PowerSavingsPlotModel.Axes.Clear();
+            PowerSavingsPlotModel.Annotations.Clear();
         }
 
         private void SetPlotModelAxes(
@@ -270,28 +327,28 @@ namespace TrimCurveApp
         {
             var lowerGroup = records.Where(x => x.Speed < Speed);
             return lowerGroup.Where(x => x.Speed == lowerGroup.Max<PowerConsumptionRecord>(rec => rec.Speed))
-                                         .OrderBy(x => x.Trim);
+                             .OrderBy(x => x.Trim);
         }
 
         private IEnumerable<PowerConsumptionRecord> GetNextSpeedRecords(IEnumerable<PowerConsumptionRecord> records)
         {
             var upperGroup = records.Where(x => x.Speed > Speed);
             return upperGroup.Where(x => x.Speed == upperGroup.Min<PowerConsumptionRecord>(rec => rec.Speed))
-                                         .OrderBy(x => x.Trim);
+                             .OrderBy(x => x.Trim);
         }
 
         private IEnumerable<PowerConsumptionRecord> GetPrevDraftRecords(IEnumerable<PowerConsumptionRecord> records)
         {
             var lowerGroup = records.Where(x => x.Draft < Draft);
             return lowerGroup.Where(x => x.Draft == lowerGroup.Max<PowerConsumptionRecord>(rec => rec.Draft))
-                                         .OrderBy(x => x.Trim);
+                             .OrderBy(x => x.Trim);
         }
 
         private IEnumerable<PowerConsumptionRecord> GetNextDraftRecords(IEnumerable<PowerConsumptionRecord> records)
         {
             var lowerGroup = records.Where(x => x.Draft > Draft);
             return lowerGroup.Where(x => x.Draft == lowerGroup.Min<PowerConsumptionRecord>(rec => rec.Draft))
-                                         .OrderBy(x => x.Trim);
+                             .OrderBy(x => x.Trim);
         }
 
         private void ReadPowerValuesFromXLS()

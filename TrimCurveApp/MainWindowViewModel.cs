@@ -166,10 +166,10 @@ namespace TrimCurveApp
             return new OxyImage(encode.Encode(imageData1));
         }
 
-        private void AddBackgroundGradient(Axis xAxis, double xStart, double xEnd, OxyColor color1, OxyColor color2)
+        private void AddBackgroundGradient(double xStart, double xEnd, OxyColor color1, OxyColor color2)
         {
             var image = GetGradientImage(color1, color2);
-            ImageAnnotation redAnnotation = new ImageAnnotation
+            ImageAnnotation imgAnnotation = new ImageAnnotation
             {
                 ImageSource = image,
                 Interpolate = true,
@@ -181,7 +181,7 @@ namespace TrimCurveApp
                 HorizontalAlignment = OxyPlot.HorizontalAlignment.Left,
                 VerticalAlignment = OxyPlot.VerticalAlignment.Middle
             };
-            PowerSavingsPlotModel.Annotations.Add(redAnnotation);
+            PowerSavingsPlotModel.Annotations.Add(imgAnnotation);
         }
 
         private void AddBackgroundColorsToPowerSavingsGraph()
@@ -194,9 +194,9 @@ namespace TrimCurveApp
             var xMax = points.Max(p => p.X);
             var xRange = xMax - xMin;
 
-            AddBackgroundGradient(xAxis, xMin, xMin + xRange / 3, OxyColors.Red, OxyColors.Pink);
-            AddBackgroundGradient(xAxis, xMin + xRange / 3, xMin + 2 * xRange / 3, OxyColors.LightYellow, OxyColors.Yellow);
-            AddBackgroundGradient(xAxis, xMin + 2 * xRange / 3, xMax, OxyColors.LightGreen, OxyColors.Green);
+            AddBackgroundGradient(xMin, xMin + xRange / 3, OxyColors.Red, OxyColors.Pink);
+            AddBackgroundGradient(xMin + xRange / 3, xMin + 2 * xRange / 3, OxyColors.LightYellow, OxyColors.Yellow);
+            AddBackgroundGradient(xMin + 2 * xRange / 3, xMax, OxyColors.LightGreen, OxyColors.Green);
         }
 
         private void ResetPlotModels() {

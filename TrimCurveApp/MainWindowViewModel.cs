@@ -21,7 +21,9 @@ namespace TrimCurveApp
         private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
         private static string TRIM = "Trim";
         private static string POWER_USAGE = "Power usage (kW)";
-        private static string POWER_SAVINGS = "Relative power savings %";
+        private static string POWER_SAVINGS_PERCENTAGE = "Relative power savings %";
+        private static string ABSOLUTE_POWER_USAGE = "Absolute power usage";
+        private static string POWER_SAVINGS = "Power savings";
 
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
         public PlotModel PowerSavingsPlotModel { get; private set; }
@@ -35,15 +37,14 @@ namespace TrimCurveApp
             Draft = 25;
             Speed = 18;
             ReadPowerValuesFromXLS();
-            AbsolutePowerUsagePlotModel = new PlotModel { Title = "Absolute power usage" };
-            PowerSavingsPlotModel = new PlotModel { Title = "Power savings" };
+            AbsolutePowerUsagePlotModel = new PlotModel { Title = ABSOLUTE_POWER_USAGE };
+            PowerSavingsPlotModel = new PlotModel { Title = POWER_SAVINGS };
             //UpdatePowerGraphs();
         }
 
         public void UpdatePowerGraphs()
         {
             ResetPlotModels();
-
             var filteredPowerRecords = PowerRecords.Where(x => x.Draft == Draft && x.Speed == Speed);
 
             IList<DataPoint> puPoints = new List<DataPoint>();
@@ -71,7 +72,7 @@ namespace TrimCurveApp
 
             if (psPoints.Any() && puPoints.Any())
             {
-                UpdateGraph(psPoints, PowerSavingsPlotModel, TRIM, POWER_SAVINGS);
+                UpdateGraph(psPoints, PowerSavingsPlotModel, TRIM, POWER_SAVINGS_PERCENTAGE);
                 UpdateGraph(puPoints, AbsolutePowerUsagePlotModel, TRIM, POWER_USAGE);
                 AddBackgroundColorsToPowerSavingsGraph();
             }

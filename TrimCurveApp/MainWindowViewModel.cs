@@ -47,8 +47,8 @@ namespace TrimCurveApp
             ResetPlotModels();
             var filteredPowerRecords = PowerRecords.Where(x => x.Draft == Draft && x.Speed == Speed);
 
-            IList<DataPoint> puPoints = new List<DataPoint>();
-            IList<DataPoint> psPoints = new List<DataPoint>();
+            var puPoints = new List<DataPoint>();
+            var psPoints = new List<DataPoint>();
 
             if (filteredPowerRecords.Any())
             {
@@ -156,21 +156,20 @@ namespace TrimCurveApp
         private OxyImage GetGradientImage(OxyColor color1, OxyColor color2)
         {
             int n = 256;
-            var imageData1 = new OxyColor[1, n];
+            var imageData = new OxyColor[1, n];
             for (int i = 0; i < n; i++)
             {
-                imageData1[0, i] = OxyColor.Interpolate(color1, color2, i / (n - 1.0));
+                imageData[0, i] = OxyColor.Interpolate(color1, color2, i / (n - 1.0));
             }
 
-            PngBitmapEncoder encoder = new PngBitmapEncoder();
-            PngEncoder encode = new PngEncoder(new PngEncoderOptions());
-            return new OxyImage(encode.Encode(imageData1));
+            var encoder = new PngEncoder(new PngEncoderOptions());
+            return new OxyImage(encoder.Encode(imageData));
         }
 
         private void AddBackgroundGradient(Axis xAxis, double yStart, double yEnd, OxyColor color1, OxyColor color2)
         {
             var image = GetGradientImage(color1, color2);
-            ImageAnnotation colorAnnotation = new ImageAnnotation
+            var colorAnnotation = new ImageAnnotation
             {
                 ImageSource = image,
                 Interpolate = true,
@@ -225,7 +224,7 @@ namespace TrimCurveApp
 
         private LinearAxis CreateAxisForPlotModel(PlotModel plotModel, double minVal, double maxVal, string title, bool isXAxis)
         {
-            LinearAxis axis = new LinearAxis();
+            var axis = new LinearAxis();
             const double offset = 0.1;
             double range = maxVal - minVal;
             axis.AbsoluteMinimum = minVal - offset * range;
@@ -378,7 +377,7 @@ namespace TrimCurveApp
                 {
                     var powerUsage = (double)(range.Cells[rCnt, i + 3] as Excel.Range).Value2;
                     var powerSavings = (double)(range.Cells[rCnt, i + 8] as Excel.Range).Value2 * 100;
-                    PowerConsumptionRecord rec = new PowerConsumptionRecord(draft, speedMap[i], trim, powerUsage, powerSavings);
+                    var rec = new PowerConsumptionRecord(draft, speedMap[i], trim, powerUsage, powerSavings);
                     PowerRecords.Add(rec);
                 }
             }

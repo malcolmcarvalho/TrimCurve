@@ -16,7 +16,7 @@ namespace TrimCurveApp
 {
     class MainWindowViewModel
     {
-        private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FFFF0000");
+        private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FF0000FF");
 
         private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
         private static string TRIM = "Trim";

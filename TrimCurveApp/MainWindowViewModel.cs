@@ -156,10 +156,10 @@ namespace TrimCurveApp
         private OxyImage GetGradientImage(OxyColor color1, OxyColor color2)
         {
             int n = 256;
-            var imageData1 = new OxyColor[n, 1];
+            var imageData1 = new OxyColor[1, n];
             for (int i = 0; i < n; i++)
             {
-                imageData1[i, 0] = OxyColor.Interpolate(color1, color2, i / (n - 1.0));
+                imageData1[0, i] = OxyColor.Interpolate(color1, color2, i / (n - 1.0));
             }
 
             PngBitmapEncoder encoder = new PngBitmapEncoder();
@@ -167,22 +167,22 @@ namespace TrimCurveApp
             return new OxyImage(encode.Encode(imageData1));
         }
 
-        private void AddBackgroundGradient(double xStart, double xEnd, OxyColor color1, OxyColor color2)
+        private void AddBackgroundGradient(Axis xAxis, double yStart, double yEnd, OxyColor color1, OxyColor color2)
         {
             var image = GetGradientImage(color1, color2);
-            ImageAnnotation imgAnnotation = new ImageAnnotation
+            ImageAnnotation colorAnnotation = new ImageAnnotation
             {
                 ImageSource = image,
                 Interpolate = true,
                 Layer = AnnotationLayer.BelowAxes,
-                X = new PlotLength(xStart, PlotLengthUnit.Data),
-                Y = new PlotLength(0, PlotLengthUnit.RelativeToPlotArea),
-                Width = new PlotLength((xEnd - xStart), PlotLengthUnit.Data),
-                Height = new PlotLength(1, PlotLengthUnit.RelativeToPlotArea),
+                X = new PlotLength(xAxis.ActualMinimum, PlotLengthUnit.Data),
+                Y = new PlotLength(yStart, PlotLengthUnit.Data),
+                Width = new PlotLength(xAxis.ActualMaximum - xAxis.ActualMinimum, PlotLengthUnit.Data),
+                Height = new PlotLength(Math.Abs(yEnd - yStart), PlotLengthUnit.Data),
                 HorizontalAlignment = OxyPlot.HorizontalAlignment.Left,
-                VerticalAlignment = OxyPlot.VerticalAlignment.Middle
+                VerticalAlignment = OxyPlot.VerticalAlignment.Bottom
             };
-            PowerSavingsPlotModel.Annotations.Add(imgAnnotation);
+            PowerSavingsPlotModel.Annotations.Add(colorAnnotation);
         }
 
         private void AddBackgroundColorsToPowerSavingsGraph()
@@ -190,14 +190,12 @@ namespace TrimCurveApp
             var lineSeries = PowerSavingsPlotModel.Series.ElementAt(0) as LineSeries;
             var points = lineSeries.ItemsSource as IEnumerable<DataPoint>;
             var xAxis = PowerSavingsPlotModel.Axes.Where(x => x.Title == TRIM).First();
+            
+            var yMin = points.Min(p => p.Y);
+            var yMax = points.Max(p => p.Y);
 
-            var xMin = points.Min(p => p.X);
-            var xMax = points.Max(p => p.X);
-            var xRange = xMax - xMin;
-
-            AddBackgroundGradient(xMin, xMin + xRange / 3, OxyColors.Red, OxyColors.Pink);
-            AddBackgroundGradient(xMin + xRange / 3, xMin + 2 * xRange / 3, OxyColors.LightYellow, OxyColors.Yellow);
-            AddBackgroundGradient(xMin + 2 * xRange / 3, xMax, OxyColors.LightGreen, OxyColors.Green);
+            AddBackgroundGradient(xAxis, yMin, 0, OxyColors.LightPink, OxyColors.Red);
+            AddBackgroundGradient(xAxis, 0, yMax, OxyColors.Green, OxyColors.GreenYellow);
         }
 
         private void ResetPlotModels() {
@@ -361,18 +359,26 @@ namespace TrimCurveApp
                 Microsoft.Office.Interop.Excel.XlPlatform.xlWindows,
                 "\t", false, false, 0, true, 1, 0);
             var xlWorksheet = xlApp.Worksheets.get_Item(1);
-
             var range = xlWorksheet.UsedRange;
-            for (int rCnt = 4; rCnt <= range.Rows.Count; rCnt++)
+
+            // temp workaround for adding speed
+            // TODO: Change this later
+            var speedMap = new Dictionary<int, int>();
+            speedMap.Add(0, 13);
+            speedMap.Add(1, 16);
+            speedMap.Add(2, 18);
+            speedMap.Add(3, 20);
+
+            for (int rCnt = 5; rCnt <= range.Rows.Count; rCnt++)
             {
                 double draft = (double)(range.Cells[rCnt, 1] as Excel.Range).Value2;
                 double trim = (double)(range.Cells[rCnt, 2] as Excel.Range).Value2;
 
-                for (int i = 0; i < 6; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     var powerUsage = (double)(range.Cells[rCnt, i + 3] as Excel.Range).Value2;
-                    var powerSavings = (double)(range.Cells[rCnt, i + 10] as Excel.Range).Value2 * 100;
-                    PowerConsumptionRecord rec = new PowerConsumptionRecord(draft, 10 + i * 2, trim, powerUsage, powerSavings);
+                    var powerSavings = (double)(range.Cells[rCnt, i + 8] as Excel.Range).Value2 * 100;
+                    PowerConsumptionRecord rec = new PowerConsumptionRecord(draft, speedMap[i], trim, powerUsage, powerSavings);
                     PowerRecords.Add(rec);
                 }
             }

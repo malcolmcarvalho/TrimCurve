@@ -4,17 +4,25 @@ using OxyPlot.Axes;
 using OxyPlot.Series;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
-using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TrimCurveApp
 {
-    class MainWindowViewModel
+    class PowerSavingsForSpeed
+    {
+        public List<double> Savings { get; set; }
+        public PowerSavingsForSpeed()
+        {
+            Savings = new List<double>();
+        }
+    }
+
+    class MainWindowViewModel : INotifyPropertyChanged
     {
         private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FF0000FF");
 
@@ -27,10 +35,46 @@ namespace TrimCurveApp
 
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
         public PlotModel PowerSavingsPlotModel { get; private set; }
+
         public double Draft { get; set; }
         public double Speed { get; set; }
 
-        public List<PowerConsumptionRecord> PowerRecords = new List<PowerConsumptionRecord>();
+        public List<PowerConsumptionRecord> PowerRecords { get; set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private ObservableCollection<PowerSavingsForSpeed> _powerSavingsForSpeedColl;
+        public ObservableCollection<PowerSavingsForSpeed> PowerSavingsForSpeedColl
+        {
+            get { return _powerSavingsForSpeedColl; }
+            set
+            {
+                if (_powerSavingsForSpeedColl != value) {
+                    _powerSavingsForSpeedColl = value;
+                    OnPropertyChanged("PowerSavingsForSpeedColl");
+                }
+            }
+        }
+
+        private List<double> _headersList;
+        public List<double> HeadersList
+        {
+            get { return _headersList; }
+            set
+            {
+                if (_headersList != value)
+                {
+                    _headersList = value;
+                    OnPropertyChanged("HeadersList");
+                }
+            }
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+        }
 
         public MainWindowViewModel()
         {
@@ -368,6 +412,7 @@ namespace TrimCurveApp
             speedMap.Add(2, 18);
             speedMap.Add(3, 20);
 
+            PowerRecords = new List<PowerConsumptionRecord>();
             for (int rCnt = 5; rCnt <= range.Rows.Count; rCnt++)
             {
                 double draft = (double)(range.Cells[rCnt, 1] as Excel.Range).Value2;
@@ -388,6 +433,28 @@ namespace TrimCurveApp
             ReleaseObject(xlWorksheet);
             ReleaseObject(xlWorkbook);
             ReleaseObject(xlApp);
+        }
+
+        public void UpdateSpeedPowerSavingsColl(double meanDraft) {
+            var records = PowerRecords.Where(rec => rec.Draft == meanDraft);
+            if (!records.Any())
+            {
+                MessageBox.Show("No data exists for given draft.");
+                return;
+            }
+
+            var speeds = records.Select(x => x.Speed).Distinct().OrderBy(y => y);
+            var speedList = new ObservableCollection<PowerSavingsForSpeed>();
+            foreach (var speed in speeds)
+            {
+                var speedRow = new PowerSavingsForSpeed();
+                var filteredRecords = records.Where(x => x.Speed == speed).OrderBy(x => x.Trim);
+                foreach (var rec in filteredRecords)
+                    speedRow.Savings.Add(rec.PowerSavings);
+                speedList.Add(speedRow);
+            }
+            PowerSavingsForSpeedColl = speedList;
+            HeadersList = records.Select(x => x.Trim).Distinct().OrderBy(x => x).ToList();
         }
 
         private void ReleaseObject(object obj)

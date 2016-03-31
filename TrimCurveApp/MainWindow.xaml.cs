@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace TrimCurveApp
 {
@@ -19,6 +20,19 @@ namespace TrimCurveApp
 
             AbsolutePowerGraph.InvalidatePlot();
             PowerSavingsGraph.InvalidatePlot();
+        }
+
+        private void ShowTrimCurve_Click(object sender, RoutedEventArgs e)
+        {
+            double meanDraft;
+            if (!Double.TryParse(MeanDraftText.Text, out meanDraft))
+            {
+                MessageBox.Show("Mean draft is not valid.");
+                return;
+            }
+
+            var vm = DataContext as MainWindowViewModel;
+            vm.UpdateSpeedPowerSavingsColl(meanDraft);
         }
     }
 }

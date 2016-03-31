@@ -81,14 +81,78 @@
                     <StackPanel Margin="20" Orientation="Vertical">
                         <StackPanel Margin="0,0,0,20" Orientation="Horizontal">
                             <Label Content="Mean Draft (m): " />
-                            <TextBox Width="50" />
-                            <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show trim curve"/>
+                            <TextBox Name="MeanDraftText"  Width="50" />
+                            <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show trim curve" Click="ShowTrimCurve_Click"/>
                         </StackPanel>
-                        <Border BorderThickness="1"
-                                BorderBrush="#FF000000"
-                                VerticalAlignment="Top">
-                            <Image Source="Resources\MeanDraft.png"/>
-                        </Border>
+                        <DataGrid AutoGenerateColumns="False" 
+                      ItemsSource="{Binding PowerSavingsForSpeedColl}">
+                            <DataGrid.Columns>
+                                <!--<DataGridTextColumn 
+                             Binding="{Binding StudentName}"  
+                             Header="Name"/>-->
+
+                                <DataGridTemplateColumn Width="*">
+                                    <DataGridTemplateColumn.HeaderStyle>
+                                        <Style 
+                          TargetType="DataGridColumnHeader">
+                                            <Setter 
+                              Property="HorizontalContentAlignment" 
+                              Value="Stretch" />
+                                            <Setter 
+                              Property="VerticalContentAlignment"  
+                              Value="Stretch" />
+                                            <Setter Property="Margin" 
+                                         Value="0" />
+                                            <Setter Property="ContentTemplate">
+                                                <Setter.Value>
+                                                    <DataTemplate>
+                                                        <ItemsControl  
+                          ItemsSource="{Binding DataContext.HeadersList, 
+                                     ElementName=LayoutRoot}">
+                                                            <ItemsControl.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <StackPanel 
+                                         Orientation="Horizontal">
+                                                                    </StackPanel>
+                                                                </ItemsPanelTemplate>
+                                                            </ItemsControl.ItemsPanel>
+                                                            <ItemsControl.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <Border  Width="70" >
+                                                                        <TextBlock Text="{Binding}" 
+                                              TextAlignment="Center"/>
+                                                                    </Border>
+                                                                </DataTemplate>
+                                                            </ItemsControl.ItemTemplate>
+                                                        </ItemsControl>
+                                                    </DataTemplate>
+                                                </Setter.Value>
+                                            </Setter>
+                                        </Style>
+                                    </DataGridTemplateColumn.HeaderStyle>
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <ItemsControl  
+                                ItemsSource="{Binding Savings}">
+                                                <ItemsControl.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ItemsControl.ItemsPanel>
+                                                <ItemsControl.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Border Width="70">
+                                                            <TextBlock Text="{Binding}" 
+                                            TextAlignment="Center"/>
+                                                        </Border>
+                                                    </DataTemplate>
+                                                </ItemsControl.ItemTemplate>
+                                            </ItemsControl>
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                            </DataGrid.Columns>
+                        </DataGrid>
                     </StackPanel>
                 </TabItem>
                 <TabItem>

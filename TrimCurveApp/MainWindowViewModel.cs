@@ -13,12 +13,35 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TrimCurveApp
 {
+    public class BindingProxy : Freezable
+    {
+        #region Overrides of Freezable
+
+        protected override Freezable CreateInstanceCore()
+        {
+            return new BindingProxy();
+        }
+
+        #endregion
+
+        public object Data
+        {
+            get { return (object)GetValue(DataProperty); }
+            set { SetValue(DataProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty DataProperty =
+            DependencyProperty.Register("Data", typeof(object), typeof(BindingProxy), new UIPropertyMetadata(null));
+    }
+
+
     class PowerSavingsForSpeed
     {
-        public List<double> Savings { get; set; }
+        public List<string> Savings { get; set; }
         public PowerSavingsForSpeed()
         {
-            Savings = new List<double>();
+            Savings = new List<string>();
         }
     }
 
@@ -56,8 +79,8 @@ namespace TrimCurveApp
             }
         }
 
-        private List<double> _headersList;
-        public List<double> HeadersList
+        private ObservableCollection<string> _headersList;
+        public ObservableCollection<string> HeadersList
         {
             get { return _headersList; }
             set
@@ -450,11 +473,17 @@ namespace TrimCurveApp
                 var speedRow = new PowerSavingsForSpeed();
                 var filteredRecords = records.Where(x => x.Speed == speed).OrderBy(x => x.Trim);
                 foreach (var rec in filteredRecords)
-                    speedRow.Savings.Add(rec.PowerSavings);
+                    speedRow.Savings.Add(String.Format("{0:N2}", rec.PowerSavings));
                 speedList.Add(speedRow);
             }
             PowerSavingsForSpeedColl = speedList;
-            HeadersList = records.Select(x => x.Trim).Distinct().OrderBy(x => x).ToList();
+            var trims = records.Select(x => x.Trim).Distinct().OrderBy(x => x);
+            var headerlist = new ObservableCollection<string>();
+            foreach (var item in trims)
+            {
+                headerlist.Add(String.Format("{0:N2}", item));
+            }
+            HeadersList = headerlist;
         }
 
         private void ReleaseObject(object obj)

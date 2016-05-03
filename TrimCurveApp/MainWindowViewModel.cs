@@ -418,33 +418,42 @@ namespace TrimCurveApp
 
         private void ReadPowerValuesFromXLS()
         {
+            const string TRIM_CURVE_FILE_NAME = @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\TrimCurveModifiedSample.xlsx";
             var xlApp = new Excel.Application();
             var xlWorkbook = xlApp.Workbooks.Open(
-                @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\TrimCurveModifiedSample.xlsx",
+                TRIM_CURVE_FILE_NAME,
                 0, true, 5, "", "", true,
                 Microsoft.Office.Interop.Excel.XlPlatform.xlWindows,
                 "\t", false, false, 0, true, 1, 0);
             var xlWorksheet = xlApp.Worksheets.get_Item(1);
             var range = xlWorksheet.UsedRange;
 
-            // temp workaround for adding speed
-            // TODO: Change this later
+            const int HEADER_ROW_INDEX = 3;
+            const int SPEED_CELL_START = 3;
+            const int DRAFT_INDEX = 1;
+            const int TRIM_INDEX = 2;
             var speedMap = new Dictionary<int, int>();
-            speedMap.Add(0, 13);
-            speedMap.Add(1, 16);
-            speedMap.Add(2, 18);
-            speedMap.Add(3, 20);
+            int speedIndex = 0;
+            while (true)
+            {
+                var speedCell = range.Cells[HEADER_ROW_INDEX, SPEED_CELL_START + speedIndex] as Excel.Range;
+                if (speedCell.Value2 == null)
+                    break;
+                var value = (int)(speedCell).Value2;
+                speedMap.Add(speedIndex++, value);
+            }
 
             PowerRecords = new List<PowerConsumptionRecord>();
-            for (int rCnt = 5; rCnt <= range.Rows.Count; rCnt++)
+            for (int rCnt = HEADER_ROW_INDEX + 1; rCnt <= range.Rows.Count; rCnt++)
             {
-                double draft = (double)(range.Cells[rCnt, 1] as Excel.Range).Value2;
-                double trim = (double)(range.Cells[rCnt, 2] as Excel.Range).Value2;
+                double draft = (double)(range.Cells[rCnt, DRAFT_INDEX] as Excel.Range).Value2;
+                double trim = (double)(range.Cells[rCnt, TRIM_INDEX] as Excel.Range).Value2;
 
-                for (int i = 0; i < 4; i++)
+                for (int i = 0; i < speedMap.Count; i++)
                 {
-                    var powerUsage = (double)(range.Cells[rCnt, i + 3] as Excel.Range).Value2;
-                    var powerSavings = (double)(range.Cells[rCnt, i + 8] as Excel.Range).Value2 * 100;
+                    var curUsageCell = SPEED_CELL_START + i;
+                    var powerUsage = (double)(range.Cells[rCnt, curUsageCell] as Excel.Range).Value2;
+                    var powerSavings = (double)(range.Cells[rCnt, curUsageCell + speedMap.Count + 1] as Excel.Range).Value2 * 100;
                     var rec = new PowerConsumptionRecord(draft, speedMap[i], trim, powerUsage, powerSavings);
                     PowerRecords.Add(rec);
                 }

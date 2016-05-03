@@ -56,16 +56,8 @@
                         <TextBlock Text="Power (kW)" />
                     </TabItem.Header>
                     <StackPanel Orientation="Vertical">
-                        <Grid Name="PowerGrid">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="1*" />
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="1*" />
-                            </Grid.ColumnDefinitions>
-                               <oxy:PlotView Name="AbsolutePowerGraph" Grid.Row="0" Grid.Column="0" Height="400"
-                                              Model="{Binding AbsolutePowerUsagePlotModel}"/>
-                        </Grid>
+                        <oxy:PlotView Name="AbsolutePowerGraph" Grid.Row="0" Grid.Column="0" Height="400"
+                                      Model="{Binding AbsolutePowerUsagePlotModel}"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem>

@@ -9,7 +9,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows;
-using Excel = Microsoft.Office.Interop.Excel;
 
 namespace TrimCurveApp
 {
@@ -110,7 +109,7 @@ namespace TrimCurveApp
             PowerSavingsPlotModel = new PlotModel { Title = POWER_SAVINGS };
             SFOCPlotModel = new PlotModel { Title = "SFOC" };
 
-            ReadPowerValuesFromXLS();
+            PowerRecords = ExcelFileDataExtractor.ReadPowerValuesFromXLS();
             ReadSFOCValuesFromXLS();
             //UpdatePowerGraphs();
         }
@@ -422,82 +421,9 @@ namespace TrimCurveApp
                              .OrderBy(x => x.Trim);
         }
 
-        private void ReadPowerValuesFromXLS()
-        {
-            const string TRIM_CURVE_FILE_NAME = @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\TrimCurveModifiedSample.xlsx";
-            var xlApp = new Excel.Application();
-            var xlWorkbook = xlApp.Workbooks.Open(
-                TRIM_CURVE_FILE_NAME,
-                0, true, 5, "", "", true,
-                Microsoft.Office.Interop.Excel.XlPlatform.xlWindows,
-                "\t", false, false, 0, true, 1, 0);
-            var xlWorksheet = xlApp.Worksheets.get_Item(1);
-            var range = xlWorksheet.UsedRange;
-
-            const int HEADER_ROW_INDEX = 2;
-            const int SPEED_CELL_START = 3;
-            const int DRAFT_INDEX = 1;
-            const int TRIM_INDEX = 2;
-            var speeds = new List<int>();
-            int speedIndex = SPEED_CELL_START;
-            while (true)
-            {
-                var speedCell = range.Cells[HEADER_ROW_INDEX, speedIndex++] as Excel.Range;
-                if (speedCell.Value2 == null)
-                    break;
-                var value = (int)(speedCell).Value2;
-                speeds.Add(value);
-            }
-
-            PowerRecords = new List<PowerConsumptionRecord>();
-            for (int rCnt = HEADER_ROW_INDEX + 1; rCnt <= range.Rows.Count; rCnt++)
-            {
-                double draft = (double)(range.Cells[rCnt, DRAFT_INDEX] as Excel.Range).Value2;
-                double trim = (double)(range.Cells[rCnt, TRIM_INDEX] as Excel.Range).Value2;
-
-                for (int i = 0; i < speeds.Count; i++)
-                {
-                    var curUsageCell = SPEED_CELL_START + i;
-                    var powerUsage = (double)(range.Cells[rCnt, curUsageCell] as Excel.Range).Value2;
-                    var powerSavings = (double)(range.Cells[rCnt, curUsageCell + speeds.Count + 1] as Excel.Range).Value2 * 100;
-                    var rec = new PowerConsumptionRecord(draft, speeds[i], trim, powerUsage, powerSavings);
-                    PowerRecords.Add(rec);
-                }
-            }
-
-            xlWorkbook.Close(true, null, null);
-            xlApp.Quit();
-
-            ReleaseObject(xlWorksheet);
-            ReleaseObject(xlWorkbook);
-            ReleaseObject(xlApp);
-        }
-
         private void ReadSFOCValuesFromXLS() {
-            const string SFOC_FILE_NAME = @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\SFOC.xlsx";
-            var xlApp = new Excel.Application();
-            var xlWorkbook = xlApp.Workbooks.Open(
-                SFOC_FILE_NAME,
-                0, true, 5, "", "", true,
-                Microsoft.Office.Interop.Excel.XlPlatform.xlWindows,
-                "\t", false, false, 0, true, 1, 0);
-            var xlWorksheet = xlApp.Worksheets.get_Item(1);
-            var range = xlWorksheet.UsedRange;
-
-            const int SPEED_COL = 3;
-            const int CONSUMPTION_COL = 5;
-            var sfocPoints = new List<DataPoint>();
-            for (int rIndex = 2; rIndex <= range.Rows.Count; rIndex++) {
-                double speed = (double)(range.Cells[rIndex, SPEED_COL] as Excel.Range).Value2;
-                double consumption = (double)(range.Cells[rIndex, CONSUMPTION_COL] as Excel.Range).Value2;
-                sfocPoints.Add(new DataPoint(speed, consumption));
-            }
-
+            var sfocPoints = ExcelFileDataExtractor.ReadSFOCValuesFromXLS();
             UpdateGraph(sfocPoints, SFOCPlotModel, SPEED_IN_KNOTS, FUEL_CONSUMPTION);
-
-            ReleaseObject(xlWorksheet);
-            ReleaseObject(xlWorkbook);
-            ReleaseObject(xlApp);
         }
 
         public void UpdateSpeedPowerSavingsColl(double meanDraft) {
@@ -526,24 +452,6 @@ namespace TrimCurveApp
                 headerlist.Add(String.Format("{0:N2}", item));
             }
             HeadersList = headerlist;
-        }
-
-        private void ReleaseObject(object obj)
-        {
-            try
-            {
-                System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
-                obj = null;
-            }
-            catch (Exception ex)
-            {
-                obj = null;
-                MessageBox.Show("Unable to release the Object " + ex.ToString());
-            }
-            finally
-            {
-                GC.Collect();
-            }
         }
     }
 }

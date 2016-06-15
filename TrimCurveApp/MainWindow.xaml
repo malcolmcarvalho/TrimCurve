@@ -145,11 +145,8 @@
                         <TextBlock Text="SFOC" />
                     </TabItem.Header>
                     <StackPanel Margin="20" VerticalAlignment="Center" Orientation="Vertical">
-                        <Border BorderThickness="1"
-                                BorderBrush="#FF000000"
-                                VerticalAlignment="Top">
-                            <Image Source="Resources\Speed-FuelConsumption.png"/>
-                        </Border>
+                        <oxy:PlotView Name="SFOCGraph" Grid.Row="0" Grid.Column="0" Height="400"
+                                              Model="{Binding SFOCPlotModel}"/>
                     </StackPanel>
                 </TabItem>
                 <TabItem>

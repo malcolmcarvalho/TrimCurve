@@ -55,9 +55,12 @@ namespace TrimCurveApp
         private static string POWER_SAVINGS_PERCENTAGE = "Relative power savings %";
         private static string ABSOLUTE_POWER_USAGE = "Absolute power usage";
         private static string POWER_SAVINGS = "Power savings";
+        private static string SPEED_IN_KNOTS = "Speed (Knots)";
+        private static string FUEL_CONSUMPTION = "Fuel Consumption (Tons per day)";
 
         public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
         public PlotModel PowerSavingsPlotModel { get; private set; }
+        public PlotModel SFOCPlotModel { get; private set; }
 
         public double Draft { get; set; }
         public double Speed { get; set; }
@@ -103,9 +106,12 @@ namespace TrimCurveApp
         {
             Draft = 25;
             Speed = 18;
-            ReadPowerValuesFromXLS();
             AbsolutePowerUsagePlotModel = new PlotModel { Title = ABSOLUTE_POWER_USAGE };
             PowerSavingsPlotModel = new PlotModel { Title = POWER_SAVINGS };
+            SFOCPlotModel = new PlotModel { Title = "SFOC" };
+
+            ReadPowerValuesFromXLS();
+            ReadSFOCValuesFromXLS();
             //UpdatePowerGraphs();
         }
 
@@ -428,19 +434,19 @@ namespace TrimCurveApp
             var xlWorksheet = xlApp.Worksheets.get_Item(1);
             var range = xlWorksheet.UsedRange;
 
-            const int HEADER_ROW_INDEX = 3;
+            const int HEADER_ROW_INDEX = 2;
             const int SPEED_CELL_START = 3;
             const int DRAFT_INDEX = 1;
             const int TRIM_INDEX = 2;
-            var speedMap = new Dictionary<int, int>();
-            int speedIndex = 0;
+            var speeds = new List<int>();
+            int speedIndex = SPEED_CELL_START;
             while (true)
             {
-                var speedCell = range.Cells[HEADER_ROW_INDEX, SPEED_CELL_START + speedIndex] as Excel.Range;
+                var speedCell = range.Cells[HEADER_ROW_INDEX, speedIndex++] as Excel.Range;
                 if (speedCell.Value2 == null)
                     break;
                 var value = (int)(speedCell).Value2;
-                speedMap.Add(speedIndex++, value);
+                speeds.Add(value);
             }
 
             PowerRecords = new List<PowerConsumptionRecord>();
@@ -449,18 +455,45 @@ namespace TrimCurveApp
                 double draft = (double)(range.Cells[rCnt, DRAFT_INDEX] as Excel.Range).Value2;
                 double trim = (double)(range.Cells[rCnt, TRIM_INDEX] as Excel.Range).Value2;
 
-                for (int i = 0; i < speedMap.Count; i++)
+                for (int i = 0; i < speeds.Count; i++)
                 {
                     var curUsageCell = SPEED_CELL_START + i;
                     var powerUsage = (double)(range.Cells[rCnt, curUsageCell] as Excel.Range).Value2;
-                    var powerSavings = (double)(range.Cells[rCnt, curUsageCell + speedMap.Count + 1] as Excel.Range).Value2 * 100;
-                    var rec = new PowerConsumptionRecord(draft, speedMap[i], trim, powerUsage, powerSavings);
+                    var powerSavings = (double)(range.Cells[rCnt, curUsageCell + speeds.Count + 1] as Excel.Range).Value2 * 100;
+                    var rec = new PowerConsumptionRecord(draft, speeds[i], trim, powerUsage, powerSavings);
                     PowerRecords.Add(rec);
                 }
             }
 
             xlWorkbook.Close(true, null, null);
             xlApp.Quit();
+
+            ReleaseObject(xlWorksheet);
+            ReleaseObject(xlWorkbook);
+            ReleaseObject(xlApp);
+        }
+
+        private void ReadSFOCValuesFromXLS() {
+            const string SFOC_FILE_NAME = @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\SFOC.xlsx";
+            var xlApp = new Excel.Application();
+            var xlWorkbook = xlApp.Workbooks.Open(
+                SFOC_FILE_NAME,
+                0, true, 5, "", "", true,
+                Microsoft.Office.Interop.Excel.XlPlatform.xlWindows,
+                "\t", false, false, 0, true, 1, 0);
+            var xlWorksheet = xlApp.Worksheets.get_Item(1);
+            var range = xlWorksheet.UsedRange;
+
+            const int SPEED_COL = 3;
+            const int CONSUMPTION_COL = 5;
+            var sfocPoints = new List<DataPoint>();
+            for (int rIndex = 2; rIndex <= range.Rows.Count; rIndex++) {
+                double speed = (double)(range.Cells[rIndex, SPEED_COL] as Excel.Range).Value2;
+                double consumption = (double)(range.Cells[rIndex, CONSUMPTION_COL] as Excel.Range).Value2;
+                sfocPoints.Add(new DataPoint(speed, consumption));
+            }
+
+            UpdateGraph(sfocPoints, SFOCPlotModel, SPEED_IN_KNOTS, FUEL_CONSUMPTION);
 
             ReleaseObject(xlWorksheet);
             ReleaseObject(xlWorkbook);

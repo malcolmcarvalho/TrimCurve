@@ -20,6 +20,7 @@ namespace TrimCurveApp
 
             AbsolutePowerGraph.InvalidatePlot();
             PowerSavingsGraph.InvalidatePlot();
+            SFOCGraph.InvalidatePlot();
         }
 
         private void ShowTrimCurve_Click(object sender, RoutedEventArgs e)

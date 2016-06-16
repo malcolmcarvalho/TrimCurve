@@ -57,9 +57,9 @@ namespace TrimCurveApp
         private static string SPEED_IN_KNOTS = "Speed (Knots)";
         private static string FUEL_CONSUMPTION = "Fuel Consumption (Tons per day)";
 
-        public PlotModel AbsolutePowerUsagePlotModel { get; private set; }
-        public PlotModel PowerSavingsPlotModel { get; private set; }
-        public PlotModel SFOCPlotModel { get; private set; }
+        public TrimCurveOxyplotModel AbsolutePowerUsagePlotModel { get; private set; }
+        public TrimCurveOxyplotModel PowerSavingsPlotModel { get; private set; }
+        public TrimCurveOxyplotModel SFOCPlotModel { get; private set; }
 
         public double Draft { get; set; }
         public double Speed { get; set; }
@@ -105,9 +105,9 @@ namespace TrimCurveApp
         {
             Draft = 25;
             Speed = 18;
-            AbsolutePowerUsagePlotModel = new PlotModel { Title = ABSOLUTE_POWER_USAGE };
-            PowerSavingsPlotModel = new PlotModel { Title = POWER_SAVINGS };
-            SFOCPlotModel = new PlotModel { Title = "SFOC" };
+            AbsolutePowerUsagePlotModel = new TrimCurveOxyplotModel { Title = ABSOLUTE_POWER_USAGE };
+            PowerSavingsPlotModel = new TrimCurveOxyplotModel { Title = POWER_SAVINGS };
+            SFOCPlotModel = new TrimCurveOxyplotModel { Title = "SFOC" };
 
             PowerRecords = ExcelFileDataExtractor.ReadPowerValuesFromXLS();
             ReadSFOCValuesFromXLS();
@@ -144,8 +144,8 @@ namespace TrimCurveApp
 
             if (psPoints.Any() && puPoints.Any())
             {
-                UpdateGraph(psPoints, PowerSavingsPlotModel, TRIM, POWER_SAVINGS_PERCENTAGE);
-                UpdateGraph(puPoints, AbsolutePowerUsagePlotModel, TRIM, POWER_USAGE);
+                PowerSavingsPlotModel.UpdateGraph(psPoints, TRIM, POWER_SAVINGS_PERCENTAGE);
+                AbsolutePowerUsagePlotModel.UpdateGraph(puPoints, TRIM, POWER_USAGE);
                 AddBackgroundColorsToPowerSavingsGraph();
             }
         }
@@ -207,24 +207,6 @@ namespace TrimCurveApp
             GenerateGraphPoints(leftLowerRecords, leftUpperRecords, rightLowerRecords, rightUpperRecords, psPoints, puPoints);
         }
 
-        private void UpdateGraph(
-            IEnumerable<DataPoint> points,
-            PlotModel plotModel,
-            string xAxis,
-            string yAxis)
-        {
-            var lineSeries = new LineSeries();
-            lineSeries.Smooth = true;
-            lineSeries.ItemsSource = points;
-            lineSeries.MarkerType = MarkerType.Circle;
-            lineSeries.MarkerFill = LINE_SERIES_COLOR;
-            lineSeries.Color = LINE_SERIES_COLOR;
-            plotModel.Series.Add(lineSeries);
-
-            plotModel.PlotAreaBackground = OxyColor.FromArgb(255, 255, 255, 255);
-            SetPlotModelAxes(plotModel, points, xAxis, yAxis);
-        }
-
         private OxyImage GetGradientImage(OxyColor color1, OxyColor color2)
         {
             int n = 256;
@@ -270,58 +252,8 @@ namespace TrimCurveApp
         }
 
         private void ResetPlotModels() {
-            AbsolutePowerUsagePlotModel.Series.Clear();
-            AbsolutePowerUsagePlotModel.Axes.Clear();
-            AbsolutePowerUsagePlotModel.Annotations.Clear();
-
-            PowerSavingsPlotModel.Series.Clear();
-            PowerSavingsPlotModel.Axes.Clear();
-            PowerSavingsPlotModel.Annotations.Clear();
-        }
-
-        private void SetPlotModelAxes(
-            PlotModel plotModel,
-            IEnumerable<DataPoint> seriesPoints,
-            string xAxisTitle, string yAxisTitle)
-        {
-            double minXVal = seriesPoints.Min<DataPoint>(dp => dp.X);
-            double maxXVal = seriesPoints.Max<DataPoint>(dp => dp.X);
-            double minYVal = seriesPoints.Min<DataPoint>(dp => dp.Y);
-            double maxYVal = seriesPoints.Max<DataPoint>(dp => dp.Y);
-
-            plotModel.PlotType = PlotType.XY;
-            SetXAxisForPlotModel(plotModel, minXVal, maxXVal, xAxisTitle);
-            SetYAxisForPlotModel(plotModel, minYVal, maxYVal, yAxisTitle);
-        }
-
-        private LinearAxis CreateAxisForPlotModel(PlotModel plotModel, double minVal, double maxVal, string title, bool isXAxis)
-        {
-            var axis = new LinearAxis();
-            const double offset = 0.1;
-            double range = maxVal - minVal;
-            axis.AbsoluteMinimum = minVal - offset * range;
-            axis.AbsoluteMaximum = maxVal + offset * range;
-            axis.Position = isXAxis ? AxisPosition.Bottom : AxisPosition.Left;
-            axis.Title = title;
-            axis.Zoom(axis.AbsoluteMinimum, axis.AbsoluteMaximum);
-            axis.IsZoomEnabled = false;
-            axis.MajorGridlineStyle = LineStyle.Solid;
-            axis.MinorGridlineStyle = LineStyle.Dot;
-            return axis;
-        }
-
-        private void SetXAxisForPlotModel(PlotModel plotModel, double minVal, double maxVal, string title)
-        {
-            var xAxis = CreateAxisForPlotModel(plotModel, minVal, maxVal, title, true);
-            xAxis.MajorStep = 1;
-            xAxis.MinorStep = 0.2;
-            plotModel.Axes.Add(xAxis);
-        }
-
-        private void SetYAxisForPlotModel(PlotModel plotModel, double minVal, double maxVal, string title)
-        {
-            var yAxis = CreateAxisForPlotModel(plotModel, minVal, maxVal, title, false);
-            plotModel.Axes.Add(yAxis);
+            AbsolutePowerUsagePlotModel.Reset();
+            PowerSavingsPlotModel.Reset();
         }
 
         private void GenerateGraphPoints(
@@ -423,7 +355,7 @@ namespace TrimCurveApp
 
         private void ReadSFOCValuesFromXLS() {
             var sfocPoints = ExcelFileDataExtractor.ReadSFOCValuesFromXLS();
-            UpdateGraph(sfocPoints, SFOCPlotModel, SPEED_IN_KNOTS, FUEL_CONSUMPTION);
+            SFOCPlotModel.UpdateGraph(sfocPoints, SPEED_IN_KNOTS, FUEL_CONSUMPTION);
         }
 
         public void UpdateSpeedPowerSavingsColl(double meanDraft) {

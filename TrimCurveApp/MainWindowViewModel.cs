@@ -12,29 +12,6 @@ using System.Windows;
 
 namespace TrimCurveApp
 {
-    public class BindingProxy : Freezable
-    {
-        #region Overrides of Freezable
-
-        protected override Freezable CreateInstanceCore()
-        {
-            return new BindingProxy();
-        }
-
-        #endregion
-
-        public object Data
-        {
-            get { return (object)GetValue(DataProperty); }
-            set { SetValue(DataProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for Data.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DataProperty =
-            DependencyProperty.Register("Data", typeof(object), typeof(BindingProxy), new UIPropertyMetadata(null));
-    }
-
-
     class PowerSavingsForSpeed
     {
         public List<string> Savings { get; set; }
@@ -46,8 +23,6 @@ namespace TrimCurveApp
 
     class MainWindowViewModel : INotifyPropertyChanged
     {
-        private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FF0000FF");
-
         private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
         private static string TRIM = "Trim";
         private static string POWER_USAGE = "Power usage (kW)";

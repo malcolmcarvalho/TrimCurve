@@ -8,10 +8,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-namespace TrimCurveApp
-{
-    class TrimCurveOxyplotModel : PlotModel
-    {
+namespace TrimCurveApp {
+    class TrimCurveOxyplotModel : PlotModel {
         private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FF0000FF");
 
         public void Reset() {
@@ -23,8 +21,7 @@ namespace TrimCurveApp
         public void UpdateGraph(
             IEnumerable<DataPoint> points,
             string xAxis,
-            string yAxis)
-        {
+            string yAxis) {
             var lineSeries = new LineSeries();
             lineSeries.Smooth = true;
             lineSeries.ItemsSource = points;
@@ -40,8 +37,7 @@ namespace TrimCurveApp
 
         public void SetPlotModelAxes(
             IEnumerable<DataPoint> seriesPoints,
-            string xAxisTitle, string yAxisTitle)
-        {
+            string xAxisTitle, string yAxisTitle) {
             double minXVal = seriesPoints.Min<DataPoint>(dp => dp.X);
             double maxXVal = seriesPoints.Max<DataPoint>(dp => dp.X);
             double minYVal = seriesPoints.Min<DataPoint>(dp => dp.Y);
@@ -52,22 +48,19 @@ namespace TrimCurveApp
             SetYAxisForPlotModel(minYVal, maxYVal, yAxisTitle);
         }
 
-        private void SetXAxisForPlotModel(double minVal, double maxVal, string title)
-        {
+        private void SetXAxisForPlotModel(double minVal, double maxVal, string title) {
             var xAxis = CreateAxisForPlotModel(minVal, maxVal, title, true);
             xAxis.MajorStep = 1;
             xAxis.MinorStep = 0.2;
             Axes.Add(xAxis);
         }
 
-        private void SetYAxisForPlotModel(double minVal, double maxVal, string title)
-        {
+        private void SetYAxisForPlotModel(double minVal, double maxVal, string title) {
             var yAxis = CreateAxisForPlotModel(minVal, maxVal, title, false);
             Axes.Add(yAxis);
         }
 
-        private LinearAxis CreateAxisForPlotModel(double minVal, double maxVal, string title, bool isXAxis)
-        {
+        private LinearAxis CreateAxisForPlotModel(double minVal, double maxVal, string title, bool isXAxis) {
             var axis = new LinearAxis();
             const double offset = 0.1;
             double range = maxVal - minVal;
@@ -81,6 +74,5 @@ namespace TrimCurveApp
             axis.MinorGridlineStyle = LineStyle.Dot;
             return axis;
         }
-
     }
 }

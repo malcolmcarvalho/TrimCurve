@@ -1,20 +1,16 @@
 ﻿using System;
 using System.Windows;
 
-namespace TrimCurveApp
-{
+namespace TrimCurveApp {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window
-    {
-        public MainWindow()
-        {
+    public partial class MainWindow : Window {
+        public MainWindow() {
             InitializeComponent();
         }
 
-        private void UpdatePowerGraphs_Click(object sender, RoutedEventArgs e)
-        {
+        private void UpdatePowerGraphs_Click(object sender, RoutedEventArgs e) {
             var vm = DataContext as MainWindowViewModel;
             vm.UpdatePowerGraphs();
 
@@ -23,11 +19,9 @@ namespace TrimCurveApp
             SFOCGraph.InvalidatePlot();
         }
 
-        private void ShowTrimCurve_Click(object sender, RoutedEventArgs e)
-        {
+        private void ShowTrimCurve_Click(object sender, RoutedEventArgs e) {
             double meanDraft;
-            if (!Double.TryParse(MeanDraftText.Text, out meanDraft))
-            {
+            if (!Double.TryParse(MeanDraftText.Text, out meanDraft)) {
                 MessageBox.Show("Mean draft is not valid.");
                 return;
             }

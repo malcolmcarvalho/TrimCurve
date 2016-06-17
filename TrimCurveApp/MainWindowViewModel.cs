@@ -10,19 +10,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 
-namespace TrimCurveApp
-{
-    class PowerSavingsForSpeed
-    {
+namespace TrimCurveApp {
+    class PowerSavingsForSpeed {
         public List<string> Savings { get; set; }
-        public PowerSavingsForSpeed()
-        {
+        public PowerSavingsForSpeed() {
             Savings = new List<string>();
         }
     }
 
-    class MainWindowViewModel : INotifyPropertyChanged
-    {
+    class MainWindowViewModel : INotifyPropertyChanged {
         private static string INVALID_RANGE_MESSAGE = "Draft or speed values provided are not within range. Cannot redraw the graphs.";
         private static string TRIM = "Trim";
         private static string POWER_USAGE = "Power usage (kW)";
@@ -44,11 +40,9 @@ namespace TrimCurveApp
         public event PropertyChangedEventHandler PropertyChanged;
 
         private ObservableCollection<PowerSavingsForSpeed> _powerSavingsForSpeedColl;
-        public ObservableCollection<PowerSavingsForSpeed> PowerSavingsForSpeedColl
-        {
+        public ObservableCollection<PowerSavingsForSpeed> PowerSavingsForSpeedColl {
             get { return _powerSavingsForSpeedColl; }
-            set
-            {
+            set {
                 if (_powerSavingsForSpeedColl != value) {
                     _powerSavingsForSpeedColl = value;
                     OnPropertyChanged("PowerSavingsForSpeedColl");
@@ -57,27 +51,22 @@ namespace TrimCurveApp
         }
 
         private ObservableCollection<string> _headersList;
-        public ObservableCollection<string> HeadersList
-        {
+        public ObservableCollection<string> HeadersList {
             get { return _headersList; }
-            set
-            {
-                if (_headersList != value)
-                {
+            set {
+                if (_headersList != value) {
                     _headersList = value;
                     OnPropertyChanged("HeadersList");
                 }
             }
         }
 
-        private void OnPropertyChanged(string propertyName)
-        {
+        private void OnPropertyChanged(string propertyName) {
             if (PropertyChanged != null)
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public MainWindowViewModel()
-        {
+        public MainWindowViewModel() {
             Draft = 25;
             Speed = 18;
             AbsolutePowerUsagePlotModel = new TrimCurveOxyplotModel { Title = ABSOLUTE_POWER_USAGE };
@@ -89,24 +78,19 @@ namespace TrimCurveApp
             //UpdatePowerGraphs();
         }
 
-        public void UpdatePowerGraphs()
-        {
+        public void UpdatePowerGraphs() {
             ResetPlotModels();
             var filteredPowerRecords = PowerRecords.Where(x => x.Draft == Draft && x.Speed == Speed);
 
             var puPoints = new List<DataPoint>();
             var psPoints = new List<DataPoint>();
 
-            if (filteredPowerRecords.Any())
-            {
-                foreach (var powerRec in filteredPowerRecords)
-                {
+            if (filteredPowerRecords.Any()) {
+                foreach (var powerRec in filteredPowerRecords) {
                     puPoints.Add(new DataPoint(powerRec.Trim, powerRec.Power));
                     psPoints.Add(new DataPoint(powerRec.Trim, powerRec.PowerSavings));
                 }
-            }
-            else
-            {
+            } else {
                 var draftMatches = PowerRecords.Where(x => x.Draft == Draft);
                 var speedMatches = PowerRecords.Where(x => x.Speed == Speed);
                 if (draftMatches.Any())
@@ -117,8 +101,7 @@ namespace TrimCurveApp
                     InterpolateGraphPointsFroMissingDraftAndSpeed(psPoints, puPoints);
             }
 
-            if (psPoints.Any() && puPoints.Any())
-            {
+            if (psPoints.Any() && puPoints.Any()) {
                 PowerSavingsPlotModel.UpdateGraph(psPoints, TRIM, POWER_SAVINGS_PERCENTAGE);
                 AbsolutePowerUsagePlotModel.UpdateGraph(puPoints, TRIM, POWER_USAGE);
                 AddBackgroundColorsToPowerSavingsGraph();
@@ -128,12 +111,10 @@ namespace TrimCurveApp
         private void InterpolateGraphPointsForMissingSpeed(
             IEnumerable<PowerConsumptionRecord> draftMatches,
             IList<DataPoint> psPoints,
-            IList<DataPoint> puPoints)
-        {
+            IList<DataPoint> puPoints) {
             var lowerRecords = GetPrevSpeedRecords(draftMatches);
             var upperRecords = GetNextSpeedRecords(draftMatches);
-            if (!lowerRecords.Any() || !upperRecords.Any())
-            {
+            if (!lowerRecords.Any() || !upperRecords.Any()) {
                 MessageBox.Show(INVALID_RANGE_MESSAGE);
                 return;
             }
@@ -147,12 +128,10 @@ namespace TrimCurveApp
         private void InterpolateGraphPointsForMissingDraft(
             IEnumerable<PowerConsumptionRecord> speedMatches,
             IList<DataPoint> psPoints,
-            IList<DataPoint> puPoints)
-        {
+            IList<DataPoint> puPoints) {
             var lowerRecords = GetPrevDraftRecords(speedMatches);
             var upperRecords = GetNextDraftRecords(speedMatches);
-            if (!lowerRecords.Any() || !upperRecords.Any())
-            {
+            if (!lowerRecords.Any() || !upperRecords.Any()) {
                 MessageBox.Show(INVALID_RANGE_MESSAGE);
                 return;
             }
@@ -165,12 +144,10 @@ namespace TrimCurveApp
 
         private void InterpolateGraphPointsFroMissingDraftAndSpeed(
             IList<DataPoint> psPoints,
-            IList<DataPoint> puPoints)
-        {
+            IList<DataPoint> puPoints) {
             var lowerSpeedRecords = GetPrevSpeedRecords(PowerRecords);
             var upperSpeedRecords = GetNextSpeedRecords(PowerRecords);
-            if (!lowerSpeedRecords.Any() || !upperSpeedRecords.Any())
-            {
+            if (!lowerSpeedRecords.Any() || !upperSpeedRecords.Any()) {
                 MessageBox.Show(INVALID_RANGE_MESSAGE);
                 return;
             }
@@ -182,12 +159,10 @@ namespace TrimCurveApp
             GenerateGraphPoints(leftLowerRecords, leftUpperRecords, rightLowerRecords, rightUpperRecords, psPoints, puPoints);
         }
 
-        private OxyImage GetGradientImage(OxyColor color1, OxyColor color2)
-        {
+        private OxyImage GetGradientImage(OxyColor color1, OxyColor color2) {
             int n = 256;
             var imageData = new OxyColor[1, n];
-            for (int i = 0; i < n; i++)
-            {
+            for (int i = 0; i < n; i++) {
                 imageData[0, i] = OxyColor.Interpolate(color1, color2, i / (n - 1.0));
             }
 
@@ -195,11 +170,9 @@ namespace TrimCurveApp
             return new OxyImage(encoder.Encode(imageData));
         }
 
-        private void AddBackgroundGradient(Axis xAxis, double yStart, double yEnd, OxyColor color1, OxyColor color2)
-        {
+        private void AddBackgroundGradient(Axis xAxis, double yStart, double yEnd, OxyColor color1, OxyColor color2) {
             var image = GetGradientImage(color1, color2);
-            var colorAnnotation = new ImageAnnotation
-            {
+            var colorAnnotation = new ImageAnnotation {
                 ImageSource = image,
                 Interpolate = true,
                 Layer = AnnotationLayer.BelowAxes,
@@ -213,12 +186,11 @@ namespace TrimCurveApp
             PowerSavingsPlotModel.Annotations.Add(colorAnnotation);
         }
 
-        private void AddBackgroundColorsToPowerSavingsGraph()
-        {
+        private void AddBackgroundColorsToPowerSavingsGraph() {
             var lineSeries = PowerSavingsPlotModel.Series.ElementAt(0) as LineSeries;
             var points = lineSeries.ItemsSource as IEnumerable<DataPoint>;
             var xAxis = PowerSavingsPlotModel.Axes.Where(x => x.Title == TRIM).First();
-            
+
             var yMin = points.Min(p => p.Y);
             var yMax = points.Max(p => p.Y);
 
@@ -236,17 +208,14 @@ namespace TrimCurveApp
             IEnumerable<PowerConsumptionRecord> upperRecords,
             IList<DataPoint> psPoints,
             IList<DataPoint> puPoints,
-            double wtFunction)
-        {
-            if (!lowerRecords.Any() || !upperRecords.Any())
-            {
+            double wtFunction) {
+            if (!lowerRecords.Any() || !upperRecords.Any()) {
                 MessageBox.Show(INVALID_RANGE_MESSAGE);
                 return;
             }
 
             Debug.Assert(lowerRecords.Count() == upperRecords.Count());
-            foreach (var rec in lowerRecords)
-            {
+            foreach (var rec in lowerRecords) {
                 var upperMatch = upperRecords.Where(x => x.Trim == rec.Trim).FirstOrDefault();
                 var newPower = rec.Power + wtFunction * (upperMatch.Power - rec.Power);
                 var newPowerSavings = rec.PowerSavings + wtFunction * (upperMatch.PowerSavings - rec.PowerSavings);
@@ -260,14 +229,12 @@ namespace TrimCurveApp
             IEnumerable<PowerConsumptionRecord> leftUpperRecords,
             IEnumerable<PowerConsumptionRecord> rightLowerRecords,
             IEnumerable<PowerConsumptionRecord> rightUpperRecords,
-            IList<DataPoint> psPoints, IList<DataPoint> puPoints)
-        {
+            IList<DataPoint> psPoints, IList<DataPoint> puPoints) {
             Debug.Assert(leftLowerRecords.Count() == leftUpperRecords.Count());
             Debug.Assert(rightLowerRecords.Count() == rightUpperRecords.Count());
             Debug.Assert(leftLowerRecords.Count() == rightLowerRecords.Count());
 
-            if (!leftLowerRecords.Any() || !leftUpperRecords.Any() || !rightLowerRecords.Any() || !rightUpperRecords.Any())
-            {
+            if (!leftLowerRecords.Any() || !leftUpperRecords.Any() || !rightLowerRecords.Any() || !rightUpperRecords.Any()) {
                 MessageBox.Show(INVALID_RANGE_MESSAGE);
                 return;
             }
@@ -280,8 +247,7 @@ namespace TrimCurveApp
             var upperDraft = leftUpperRecords.FirstOrDefault().Draft;
             var draftWtFunction = (Draft - lowerDraft) / (upperDraft - lowerDraft);
 
-            foreach (var rec in leftLowerRecords)
-            {
+            foreach (var rec in leftLowerRecords) {
                 var rightLowerMatch = rightLowerRecords.Where(x => x.Trim == rec.Trim).FirstOrDefault();
                 var leftUpperMatch = leftUpperRecords.Where(x => x.Trim == rec.Trim).FirstOrDefault();
                 var rightUpperMatch = rightUpperRecords.Where(x => x.Trim == rec.Trim).FirstOrDefault();
@@ -300,29 +266,25 @@ namespace TrimCurveApp
             }
         }
 
-        private IEnumerable<PowerConsumptionRecord> GetPrevSpeedRecords(IEnumerable<PowerConsumptionRecord> records)
-        {
+        private IEnumerable<PowerConsumptionRecord> GetPrevSpeedRecords(IEnumerable<PowerConsumptionRecord> records) {
             var lowerGroup = records.Where(x => x.Speed < Speed);
             return lowerGroup.Where(x => x.Speed == lowerGroup.Max<PowerConsumptionRecord>(rec => rec.Speed))
                              .OrderBy(x => x.Trim);
         }
 
-        private IEnumerable<PowerConsumptionRecord> GetNextSpeedRecords(IEnumerable<PowerConsumptionRecord> records)
-        {
+        private IEnumerable<PowerConsumptionRecord> GetNextSpeedRecords(IEnumerable<PowerConsumptionRecord> records) {
             var upperGroup = records.Where(x => x.Speed > Speed);
             return upperGroup.Where(x => x.Speed == upperGroup.Min<PowerConsumptionRecord>(rec => rec.Speed))
                              .OrderBy(x => x.Trim);
         }
 
-        private IEnumerable<PowerConsumptionRecord> GetPrevDraftRecords(IEnumerable<PowerConsumptionRecord> records)
-        {
+        private IEnumerable<PowerConsumptionRecord> GetPrevDraftRecords(IEnumerable<PowerConsumptionRecord> records) {
             var lowerGroup = records.Where(x => x.Draft < Draft);
             return lowerGroup.Where(x => x.Draft == lowerGroup.Max<PowerConsumptionRecord>(rec => rec.Draft))
                              .OrderBy(x => x.Trim);
         }
 
-        private IEnumerable<PowerConsumptionRecord> GetNextDraftRecords(IEnumerable<PowerConsumptionRecord> records)
-        {
+        private IEnumerable<PowerConsumptionRecord> GetNextDraftRecords(IEnumerable<PowerConsumptionRecord> records) {
             var lowerGroup = records.Where(x => x.Draft > Draft);
             return lowerGroup.Where(x => x.Draft == lowerGroup.Min<PowerConsumptionRecord>(rec => rec.Draft))
                              .OrderBy(x => x.Trim);
@@ -335,16 +297,14 @@ namespace TrimCurveApp
 
         public void UpdateSpeedPowerSavingsColl(double meanDraft) {
             var records = PowerRecords.Where(rec => rec.Draft == meanDraft);
-            if (!records.Any())
-            {
+            if (!records.Any()) {
                 MessageBox.Show("No data exists for given draft.");
                 return;
             }
 
             var speeds = records.Select(x => x.Speed).Distinct().OrderBy(y => y);
             var speedList = new ObservableCollection<PowerSavingsForSpeed>();
-            foreach (var speed in speeds)
-            {
+            foreach (var speed in speeds) {
                 var speedRow = new PowerSavingsForSpeed();
                 var filteredRecords = records.Where(x => x.Speed == speed).OrderBy(x => x.Trim);
                 foreach (var rec in filteredRecords)
@@ -354,8 +314,7 @@ namespace TrimCurveApp
             PowerSavingsForSpeedColl = speedList;
             var trims = records.Select(x => x.Trim).Distinct().OrderBy(x => x);
             var headerlist = new ObservableCollection<string>();
-            foreach (var item in trims)
-            {
+            foreach (var item in trims) {
                 headerlist.Add(String.Format("{0:N2}", item));
             }
             HeadersList = headerlist;

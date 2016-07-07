@@ -182,19 +182,19 @@
                     </TabItem.Header>
                     <StackPanel Margin="20">
                         <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at aft:" />
-                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="25 m"/>
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at aft (m):" />
+                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="25"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at fwd:" />
-                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="26 m"/>
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at fwd (m):" />
+                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="26"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Present trim:" />
-                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="100 m"/>
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Present trim (m):" />
+                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="100"/>
                         </StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Fule price in USD:" />
+                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Fuel price per litre (USD):" />
                             <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="100"/>
                         </StackPanel>
                     </StackPanel>
@@ -208,7 +208,7 @@
                     <TextBox Width="80"></TextBox>
                     <Button Padding="10,0,10,0" Margin="10,0,0,0" Content="Show draft" />
                 </StackPanel>
-                <Image Width="300" Height="Auto" Grid.Column="1" Source="C:\Malcolm\CodeProjects\TrimCurve\TrimCurveApp\Resources\Aft-Fwd-Draft.png"></Image>
+                <Image Width="300" Height="Auto" Grid.Column="1" Source="C:\Malcolm\GreenOptilfoat\TrimCurve\TrimCurveApp\Resources\Aft-Fwd-Draft.png"></Image>
             </StackPanel>
         </GroupBox>
     </Grid>

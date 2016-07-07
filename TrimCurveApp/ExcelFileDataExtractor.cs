@@ -62,7 +62,7 @@ namespace TrimCurveApp
 
             var range = xlWorksheet.UsedRange;
             const int SPEED_COL = 3;
-            const int CONSUMPTION_COL = 5;
+            const int CONSUMPTION_COL = 6;
             var sfocPoints = new List<DataPoint>();
             for (int rIndex = 2; rIndex <= range.Rows.Count; rIndex++)
             {

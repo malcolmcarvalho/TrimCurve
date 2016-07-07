@@ -26,7 +26,7 @@ namespace TrimCurveApp {
         private static string ABSOLUTE_POWER_USAGE = "Absolute power usage";
         private static string POWER_SAVINGS = "Power savings";
         private static string SPEED_IN_KNOTS = "Speed (Knots)";
-        private static string FUEL_CONSUMPTION = "Fuel Consumption (Tons per day)";
+        private static string FUEL_CONSUMPTION = "Fuel Consumption (g/KWh)";
 
         public TrimCurveOxyplotModel AbsolutePowerUsagePlotModel { get; private set; }
         public TrimCurveOxyplotModel PowerSavingsPlotModel { get; private set; }

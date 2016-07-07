@@ -10,13 +10,18 @@
         ResizeMode="NoResize">
     <Window.Resources>
         <Style x:Key="ShipDetailLabelStyle" TargetType="Label">
-            <Setter Property="Width" Value="120" />
+            <Setter Property="Width" Value="Auto" />
             <Setter Property="HorizontalAlignment" Value="Left" />
         </Style>
-        <Style x:Key="ShipParticularValueStyle" TargetType="Control">
+        <Style x:Key="ShipParticularFixedValueStyle" TargetType="Control">
             <Setter Property="FontWeight" Value="Bold" />
             <Setter Property="Height" Value="25" />
-            <Setter Property="Width" Value="100" />
+            <Setter Property="Width" Value="Auto" />
+        </Style>
+        <Style x:Key="ShipParticularEditableValueStyle" TargetType="Control">
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Height" Value="25" />
+            <Setter Property="Width" Value="80" />
         </Style>
     </Window.Resources>
     <Window.DataContext>
@@ -153,55 +158,69 @@
                     <TabItem.Header>
                         <TextBlock Text="Ship particulars" />
                     </TabItem.Header>
-                    <StackPanel Margin="20">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Ship name:" />
-                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="Long ship name"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="IMO number:" />
-                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="23456"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="LBP:" />
-                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="110 m"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Breadth:" />
-                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="50 m"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft:" />
-                            <Label Style="{StaticResource ShipParticularValueStyle}" Content="25 m"/>
-                        </StackPanel>
-                    </StackPanel>
+                    <Grid Margin="30,30">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width ="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Ship name:" Grid.Row="0" Grid.Column="0"/>
+                        <Label Style="{StaticResource ShipParticularFixedValueStyle}" Content="Long ship name" Grid.Row="0" Grid.Column="1"/>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="IMO number:" Grid.Row="1" Grid.Column="0"/>
+                        <Label Style="{StaticResource ShipParticularFixedValueStyle}" Content="23456" Grid.Row="1" Grid.Column="1"/>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="LBP:" Grid.Row="2" Grid.Column="0"/>
+                        <Label Style="{StaticResource ShipParticularFixedValueStyle}" Content="110 m" Grid.Row="2" Grid.Column="1"/>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Breadth:" Grid.Row="3" Grid.Column="0"/>
+                        <Label Style="{StaticResource ShipParticularFixedValueStyle}" Content="50 m" Grid.Row="3" Grid.Column="1"/>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft:" Grid.Row="4" Grid.Column="0"/>
+                        <Label Style="{StaticResource ShipParticularFixedValueStyle}" Content="25 m" Grid.Row="4" Grid.Column="1"/>
+                    </Grid>
                 </TabItem>
                 <TabItem>
                     <TabItem.Header>
                         <TextBlock Text="Dynamic Data" />
                     </TabItem.Header>
-                    <StackPanel Margin="20">
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at aft (m):" />
-                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="25"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at fwd (m):" />
-                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="26"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Present trim (m):" />
-                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="100"/>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Fuel price per litre (USD):" />
-                            <TextBox Style="{StaticResource ShipParticularValueStyle}" Text="100"/>
-                        </StackPanel>
-                    </StackPanel>
+                    <Grid Margin="30,30">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="160"></ColumnDefinition>
+                            <ColumnDefinition Width="Auto"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at aft (m):" Grid.Row="0" Grid.Column="0"/>
+                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Text="20"  Grid.Row="0" Grid.Column="1"
+                                     local:TextBoxMaskBehavior.Mask="Decimal"
+                                     local:TextBoxMaskBehavior.MinimumValue="0"
+                                     local:TextBoxMaskBehavior.MaximumValue="20"/>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at fwd (m):" Grid.Row="1" Grid.Column="0"/>
+                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Text="20" Grid.Row="1" Grid.Column="1"
+                                     local:TextBoxMaskBehavior.Mask="Decimal"
+                                     local:TextBoxMaskBehavior.MinimumValue="0"
+                                     local:TextBoxMaskBehavior.MaximumValue="20"/>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Present trim (m):" Grid.Row="2" Grid.Column="0"/>
+                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Text="100" Grid.Row="2" Grid.Column="1"
+                                     local:TextBoxMaskBehavior.Mask="Decimal"
+                                     local:TextBoxMaskBehavior.MinimumValue="-5"
+                                     local:TextBoxMaskBehavior.MaximumValue="5"/>
+                        <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Fuel price per litre (USD):" Grid.Row="3" Grid.Column="0"/>
+                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Text="100" Grid.Row="3" Grid.Column="1"
+                                     local:TextBoxMaskBehavior.Mask="Decimal"
+                                     local:TextBoxMaskBehavior.MinimumValue="0"/>
+                    </Grid>
                 </TabItem>
             </TabControl>
         </Grid>
-        <GroupBox Margin="10" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Draft Measures">
+        <GroupBox Margin="10" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Draft Measures" Visibility="Hidden">
             <StackPanel Margin="0,40,0,0" Orientation="Vertical">
                 <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Orientation="Horizontal">
                     <Label Content="Fuel (t/day): "></Label>

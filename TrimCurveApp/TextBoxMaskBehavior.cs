@@ -20,17 +20,14 @@ namespace TrimCurveApp {
     /// </para>
     /// </remarks>
     #endregion
-    public class TextBoxMaskBehavior
-    {
+    public class TextBoxMaskBehavior {
         #region MinimumValue Property
 
-        public static double GetMinimumValue(DependencyObject obj)
-        {
+        public static double GetMinimumValue(DependencyObject obj) {
             return (double)obj.GetValue(MinimumValueProperty);
         }
 
-        public static void SetMinimumValue(DependencyObject obj, double value)
-        {
+        public static void SetMinimumValue(DependencyObject obj, double value) {
             obj.SetValue(MinimumValueProperty, value);
         }
 
@@ -42,8 +39,7 @@ namespace TrimCurveApp {
                 new FrameworkPropertyMetadata(double.NaN, MinimumValueChangedCallback)
                 );
 
-        private static void MinimumValueChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
+        private static void MinimumValueChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             TextBox _this = (d as TextBox);
             ValidateTextBox(_this);
         }
@@ -51,13 +47,11 @@ namespace TrimCurveApp {
 
         #region MaximumValue Property
 
-        public static double GetMaximumValue(DependencyObject obj)
-        {
+        public static double GetMaximumValue(DependencyObject obj) {
             return (double)obj.GetValue(MaximumValueProperty);
         }
 
-        public static void SetMaximumValue(DependencyObject obj, double value)
-        {
+        public static void SetMaximumValue(DependencyObject obj, double value) {
             obj.SetValue(MaximumValueProperty, value);
         }
 
@@ -69,8 +63,7 @@ namespace TrimCurveApp {
                 new FrameworkPropertyMetadata(double.NaN, MaximumValueChangedCallback)
                 );
 
-        private static void MaximumValueChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
+        private static void MaximumValueChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
             TextBox _this = (d as TextBox);
             ValidateTextBox(_this);
         }
@@ -78,13 +71,11 @@ namespace TrimCurveApp {
 
         #region Mask Property
 
-        public static MaskType GetMask(DependencyObject obj)
-        {
+        public static MaskType GetMask(DependencyObject obj) {
             return (MaskType)obj.GetValue(MaskProperty);
         }
 
-        public static void SetMask(DependencyObject obj, MaskType value)
-        {
+        public static void SetMask(DependencyObject obj, MaskType value) {
             obj.SetValue(MaskProperty, value);
         }
 
@@ -96,10 +87,8 @@ namespace TrimCurveApp {
                 new FrameworkPropertyMetadata(MaskChangedCallback)
                 );
 
-        private static void MaskChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (e.OldValue is TextBox)
-            {
+        private static void MaskChangedCallback(DependencyObject d, DependencyPropertyChangedEventArgs e) {
+            if (e.OldValue is TextBox) {
                 (e.OldValue as TextBox).PreviewTextInput -= TextBox_PreviewTextInput;
                 DataObject.RemovePastingHandler((e.OldValue as TextBox), (DataObjectPastingEventHandler)TextBoxPastingEventHandler);
             }
@@ -108,8 +97,7 @@ namespace TrimCurveApp {
             if (_this == null)
                 return;
 
-            if ((MaskType)e.NewValue != MaskType.Any)
-            {
+            if ((MaskType)e.NewValue != MaskType.Any) {
                 _this.PreviewTextInput += TextBox_PreviewTextInput;
                 DataObject.AddPastingHandler(_this, (DataObjectPastingEventHandler)TextBoxPastingEventHandler);
             }
@@ -121,50 +109,41 @@ namespace TrimCurveApp {
 
         #region Private Static Methods
 
-        private static void ValidateTextBox(TextBox _this)
-        {
-            if (GetMask(_this) != MaskType.Any)
-            {
+        private static void ValidateTextBox(TextBox _this) {
+            if (GetMask(_this) != MaskType.Any) {
                 _this.Text = ValidateValue(GetMask(_this), _this.Text, GetMinimumValue(_this), GetMaximumValue(_this));
             }
         }
 
-        private static void TextBoxPastingEventHandler(object sender, DataObjectPastingEventArgs e)
-        {
+        private static void TextBoxPastingEventHandler(object sender, DataObjectPastingEventArgs e) {
             TextBox _this = (sender as TextBox);
             string clipboard = e.DataObject.GetData(typeof(string)) as string;
             clipboard = ValidateValue(GetMask(_this), clipboard, GetMinimumValue(_this), GetMaximumValue(_this));
-            if (!string.IsNullOrEmpty(clipboard))
-            {
+            if (!string.IsNullOrEmpty(clipboard)) {
                 _this.Text = clipboard;
             }
             e.CancelCommand();
             e.Handled = true;
         }
 
-        private static void TextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e)
-        {
+        private static void TextBox_PreviewTextInput(object sender, System.Windows.Input.TextCompositionEventArgs e) {
             TextBox _this = (sender as TextBox);
             bool isValid = IsSymbolValid(GetMask(_this), e.Text);
             e.Handled = !isValid;
-            if (isValid)
-            {
+            if (isValid) {
                 int caret = _this.CaretIndex;
                 string text = _this.Text;
                 bool textInserted = false;
                 int selectionLength = 0;
 
-                if (_this.SelectionLength > 0)
-                {
+                if (_this.SelectionLength > 0) {
                     text = text.Substring(0, _this.SelectionStart) +
                             text.Substring(_this.SelectionStart + _this.SelectionLength);
                     caret = _this.SelectionStart;
                 }
 
-                if (e.Text == NumberFormatInfo.CurrentInfo.NumberDecimalSeparator)
-                {
-                    while (true)
-                    {
+                if (e.Text == NumberFormatInfo.CurrentInfo.NumberDecimalSeparator) {
+                    while (true) {
                         int ind = text.IndexOf(NumberFormatInfo.CurrentInfo.NumberDecimalSeparator);
                         if (ind == -1)
                             break;
@@ -174,80 +153,62 @@ namespace TrimCurveApp {
                             caret--;
                     }
 
-                    if (caret == 0)
-                    {
+                    if (caret == 0) {
                         text = "0" + text;
                         caret++;
-                    }
-                    else
-                    {
-                        if (caret == 1 && string.Empty + text[0] == NumberFormatInfo.CurrentInfo.NegativeSign)
-                        {
-                            text =  NumberFormatInfo.CurrentInfo.NegativeSign + "0" + text.Substring(1);
+                    } else {
+                        if (caret == 1 && string.Empty + text[0] == NumberFormatInfo.CurrentInfo.NegativeSign) {
+                            text = NumberFormatInfo.CurrentInfo.NegativeSign + "0" + text.Substring(1);
                             caret++;
                         }
                     }
 
-                    if (caret == text.Length)
-                    {
+                    if (caret == text.Length) {
                         selectionLength = 1;
                         textInserted = true;
                         text = text + NumberFormatInfo.CurrentInfo.NumberDecimalSeparator + "0";
                         caret++;
                     }
-                }
-                else if (e.Text == NumberFormatInfo.CurrentInfo.NegativeSign)
-                {
+                } else if (e.Text == NumberFormatInfo.CurrentInfo.NegativeSign) {
                     textInserted = true;
-                    if (_this.Text.Contains(NumberFormatInfo.CurrentInfo.NegativeSign))
-                    {
+                    if (_this.Text.Contains(NumberFormatInfo.CurrentInfo.NegativeSign)) {
                         text = text.Replace(NumberFormatInfo.CurrentInfo.NegativeSign, string.Empty);
                         if (caret != 0)
                             caret--;
-                    }
-                    else
-                    {
+                    } else {
                         text = NumberFormatInfo.CurrentInfo.NegativeSign + _this.Text;
                         caret++;
                     }
                 }
 
-                if (!textInserted)
-                {
+                if (!textInserted) {
                     text = text.Substring(0, caret) + e.Text +
                         ((caret < _this.Text.Length) ? text.Substring(caret) : string.Empty);
 
                     caret++;
                 }
 
-                try
-                {
+                try {
                     double val = Convert.ToDouble(text);
                     double newVal = ValidateLimits(GetMinimumValue(_this), GetMaximumValue(_this), val);
-                    if (val != newVal)
-                    {
+                    if (val != newVal) {
                         text = newVal.ToString();
-                    }
-                    else if (val == 0)
-                    {
+                    } else if (val == 0) {
                         if (!text.Contains(NumberFormatInfo.CurrentInfo.NumberDecimalSeparator))
                             text = "0";
                     }
                 }
-                catch
-                {
+                catch {
                     text = "0";
                 }
 
-                while (text.Length > 1 && text[0] == '0' && string.Empty + text[1] != NumberFormatInfo.CurrentInfo.NumberDecimalSeparator)
-                {
+                while (text.Length > 1 && text[0] == '0' && string.Empty + text[1] != NumberFormatInfo.CurrentInfo.NumberDecimalSeparator) {
                     text = text.Substring(1);
                     if (caret > 0)
                         caret--;
                 }
 
-                while (text.Length > 2 && string.Empty + text[0] == NumberFormatInfo.CurrentInfo.NegativeSign && text[1] == '0' && string.Empty + text[2] != NumberFormatInfo.CurrentInfo.NumberDecimalSeparator)
-                {
+                while (text.Length > 2 && string.Empty + text[0] == NumberFormatInfo.CurrentInfo.NegativeSign && text[1] == '0' && string.Empty + text[2] != NumberFormatInfo.CurrentInfo.NumberDecimalSeparator) {
                     text = NumberFormatInfo.CurrentInfo.NegativeSign + text.Substring(2);
                     if (caret > 1)
                         caret--;
@@ -264,34 +225,28 @@ namespace TrimCurveApp {
             }
         }
 
-        private static string ValidateValue(MaskType mask, string value, double min, double max)
-        {
+        private static string ValidateValue(MaskType mask, string value, double min, double max) {
             if (string.IsNullOrEmpty(value))
                 return string.Empty;
 
             value = value.Trim();
-            switch (mask)
-            {
+            switch (mask) {
                 case MaskType.Integer:
-                    try
-                    {
+                    try {
                         Convert.ToInt64(value);
                         return value;
                     }
-                    catch
-                    {
+                    catch {
                     }
                     return string.Empty;
 
                 case MaskType.Decimal:
-                    try
-                    {
+                    try {
                         Convert.ToDouble(value);
 
                         return value;
                     }
-                    catch
-                    {
+                    catch {
                     }
                     return string.Empty;
             }
@@ -299,16 +254,13 @@ namespace TrimCurveApp {
             return value;
         }
 
-        private static double ValidateLimits(double min, double max, double value)
-        {
-            if (!min.Equals(double.NaN))
-            {
+        private static double ValidateLimits(double min, double max, double value) {
+            if (!min.Equals(double.NaN)) {
                 if (value < min)
                     return min;
             }
 
-            if (!max.Equals(double.NaN))
-            {
+            if (!max.Equals(double.NaN)) {
                 if (value > max)
                     return max;
             }
@@ -316,10 +268,8 @@ namespace TrimCurveApp {
             return value;
         }
 
-        private static bool IsSymbolValid(MaskType mask, string str)
-        {
-            switch (mask)
-            {
+        private static bool IsSymbolValid(MaskType mask, string str) {
+            switch (mask) {
                 case MaskType.Any:
                     return true;
 
@@ -335,10 +285,8 @@ namespace TrimCurveApp {
                     break;
             }
 
-            if (mask.Equals(MaskType.Integer) || mask.Equals(MaskType.Decimal))
-            {
-                foreach (char ch in str)
-                {
+            if (mask.Equals(MaskType.Integer) || mask.Equals(MaskType.Decimal)) {
+                foreach (char ch in str) {
                     if (!Char.IsDigit(ch))
                         return false;
                 }
@@ -352,10 +300,9 @@ namespace TrimCurveApp {
         #endregion
     }
 
-    public enum MaskType
-    {
+    public enum MaskType {
         Any,
         Integer,
         Decimal
-    }  
+    }
 }

@@ -32,8 +32,13 @@ namespace TrimCurveApp {
         public TrimCurveOxyplotModel PowerSavingsPlotModel { get; private set; }
         public TrimCurveOxyplotModel SFOCPlotModel { get; private set; }
 
+        public TrimCurveOxyplotBarGraphModel DraftAtAftPlotModel { get; private set; }
+        public TrimCurveOxyplotBarGraphModel DraftAtFwdPlotModel { get; private set; }
+
         public double Draft { get; set; }
         public double Speed { get; set; }
+        public double DraftAtAft { get; set; }
+        public double DraftAtFwd { get; set; }
 
         public List<PowerConsumptionRecord> PowerRecords { get; set; }
 
@@ -69,21 +74,44 @@ namespace TrimCurveApp {
         public MainWindowViewModel() {
             Draft = 25;
             Speed = 18;
-            AbsolutePowerUsagePlotModel = new TrimCurveOxyplotModel { Title = ABSOLUTE_POWER_USAGE };
-            PowerSavingsPlotModel = new TrimCurveOxyplotModel { Title = POWER_SAVINGS };
-            SFOCPlotModel = new TrimCurveOxyplotModel { Title = "SFOC" };
+            DraftAtAft = 10;
+            DraftAtFwd = 12;
 
             PowerRecords = ExcelFileDataExtractor.ReadPowerValuesFromXLS();
+
+            List<DataPoint> psPoints, puPoints;
+            ComputePlotPoints(out puPoints, out psPoints);
+            AbsolutePowerUsagePlotModel = new TrimCurveOxyplotModel(TRIM, POWER_SAVINGS_PERCENTAGE) { Title = ABSOLUTE_POWER_USAGE };
+            PowerSavingsPlotModel = new TrimCurveOxyplotModel(TRIM, POWER_USAGE) { Title = POWER_SAVINGS };
+            SFOCPlotModel = new TrimCurveOxyplotModel(SPEED_IN_KNOTS, FUEL_CONSUMPTION) { Title = "SFOC" };
+            DraftAtAftPlotModel = new TrimCurveOxyplotBarGraphModel("Draft@Aft", DraftAtAft);
+            DraftAtFwdPlotModel = new TrimCurveOxyplotBarGraphModel("Draft@Fwd", DraftAtFwd);
+
+            UpdatePowerGraphs();
             ReadSFOCValuesFromXLS();
-            //UpdatePowerGraphs();
         }
 
         public void UpdatePowerGraphs() {
             ResetPlotModels();
-            var filteredPowerRecords = PowerRecords.Where(x => x.Draft == Draft && x.Speed == Speed);
+            List<DataPoint> psPoints, puPoints;
+            ComputePlotPoints(out puPoints, out psPoints);
 
-            var puPoints = new List<DataPoint>();
-            var psPoints = new List<DataPoint>();
+            if (psPoints.Any() && puPoints.Any()) {
+                PowerSavingsPlotModel.UpdateGraph(psPoints);
+                AbsolutePowerUsagePlotModel.UpdateGraph(puPoints);
+                DraftAtAftPlotModel.UpdateGraph(DraftAtAft);
+                DraftAtFwdPlotModel.UpdateGraph(DraftAtFwd);
+                AddBackgroundColorsToPowerSavingsGraph();
+
+                AddBackgroundColorsToDraftPlotModel(DraftAtAftPlotModel);
+                AddBackgroundColorsToDraftPlotModel(DraftAtFwdPlotModel);
+            }
+        }
+
+        private void ComputePlotPoints(out List<DataPoint> puPoints, out List<DataPoint> psPoints) {
+            var filteredPowerRecords = PowerRecords.Where(x => x.Draft == Draft && x.Speed == Speed);
+            puPoints = new List<DataPoint>();
+            psPoints = new List<DataPoint>();
 
             if (filteredPowerRecords.Any()) {
                 foreach (var powerRec in filteredPowerRecords) {
@@ -99,12 +127,6 @@ namespace TrimCurveApp {
                     InterpolateGraphPointsForMissingDraft(speedMatches, psPoints, puPoints);
                 else
                     InterpolateGraphPointsFroMissingDraftAndSpeed(psPoints, puPoints);
-            }
-
-            if (psPoints.Any() && puPoints.Any()) {
-                PowerSavingsPlotModel.UpdateGraph(psPoints, TRIM, POWER_SAVINGS_PERCENTAGE);
-                AbsolutePowerUsagePlotModel.UpdateGraph(puPoints, TRIM, POWER_USAGE);
-                AddBackgroundColorsToPowerSavingsGraph();
             }
         }
 
@@ -170,7 +192,7 @@ namespace TrimCurveApp {
             return new OxyImage(encoder.Encode(imageData));
         }
 
-        private void AddBackgroundGradient(Axis xAxis, double yStart, double yEnd, OxyColor color1, OxyColor color2) {
+        public void AddBackgroundGradient(PlotModel model, Axis xAxis, double yStart, double yEnd, OxyColor color1, OxyColor color2) {
             var image = GetGradientImage(color1, color2);
             var colorAnnotation = new ImageAnnotation {
                 ImageSource = image,
@@ -183,19 +205,35 @@ namespace TrimCurveApp {
                 HorizontalAlignment = OxyPlot.HorizontalAlignment.Left,
                 VerticalAlignment = OxyPlot.VerticalAlignment.Bottom
             };
-            PowerSavingsPlotModel.Annotations.Add(colorAnnotation);
+            model.Annotations.Add(colorAnnotation);
+        }
+
+        private void AddBackgroundColorsToDraftPlotModel(TrimCurveOxyplotBarGraphModel model) {
+            //var image = GetGradientImage(OxyColors.Orange, OxyColors.Green);
+            //var colorAnnotation = new ImageAnnotation {
+            //    ImageSource = image,
+            //    Interpolate = true,
+            //    Layer = AnnotationLayer.BelowAxes,
+            //    X = new PlotLength(0, PlotLengthUnit.Data),
+            //    Y = new PlotLength(0, PlotLengthUnit.Data),
+            //    Width = new PlotLength(model.PlotArea.Width, PlotLengthUnit.Data),
+            //    Height = new PlotLength(model.PlotArea.Height, PlotLengthUnit.Data),
+            //    HorizontalAlignment = OxyPlot.HorizontalAlignment.Left,
+            //    VerticalAlignment = OxyPlot.VerticalAlignment.Bottom
+            //};
+            //model.Annotations.Add(colorAnnotation);
         }
 
         private void AddBackgroundColorsToPowerSavingsGraph() {
             var lineSeries = PowerSavingsPlotModel.Series.ElementAt(0) as LineSeries;
             var points = lineSeries.ItemsSource as IEnumerable<DataPoint>;
-            var xAxis = PowerSavingsPlotModel.Axes.Where(x => x.Title == TRIM).First();
+            var xAxis = PowerSavingsPlotModel.Axes.Where(x => x.Position == AxisPosition.Bottom).First();
 
             var yMin = points.Min(p => p.Y);
             var yMax = points.Max(p => p.Y);
 
-            AddBackgroundGradient(xAxis, yMin, 0, OxyColors.LightPink, OxyColors.Red);
-            AddBackgroundGradient(xAxis, 0, yMax, OxyColors.Green, OxyColors.GreenYellow);
+            AddBackgroundGradient(PowerSavingsPlotModel, xAxis, yMin, 0, OxyColors.LightPink, OxyColors.Red);
+            AddBackgroundGradient(PowerSavingsPlotModel, xAxis, 0, yMax, OxyColors.Green, OxyColors.GreenYellow);
         }
 
         private void ResetPlotModels() {
@@ -292,7 +330,7 @@ namespace TrimCurveApp {
 
         private void ReadSFOCValuesFromXLS() {
             var sfocPoints = ExcelFileDataExtractor.ReadSFOCValuesFromXLS();
-            SFOCPlotModel.UpdateGraph(sfocPoints, SPEED_IN_KNOTS, FUEL_CONSUMPTION);
+            SFOCPlotModel.UpdateGraph(sfocPoints);
         }
 
         public void UpdateSpeedPowerSavingsColl(double meanDraft) {

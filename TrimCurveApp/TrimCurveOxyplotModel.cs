@@ -1,16 +1,21 @@
 ﻿using OxyPlot;
 using OxyPlot.Axes;
 using OxyPlot.Series;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 
 namespace TrimCurveApp {
     class TrimCurveOxyplotModel : PlotModel {
         private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FF0000FF");
+
+        private readonly string _xAxis;
+        private readonly string _yAxis;
+
+        public TrimCurveOxyplotModel(string xAxis, string yAxis) {
+            _xAxis = xAxis;
+            _yAxis = yAxis;
+        }
 
         public void Reset() {
             Series.Clear();
@@ -18,10 +23,7 @@ namespace TrimCurveApp {
             Annotations.Clear();
         }
 
-        public void UpdateGraph(
-            IEnumerable<DataPoint> points,
-            string xAxis,
-            string yAxis) {
+        public void UpdateGraph(IEnumerable<DataPoint> points) {
             var lineSeries = new LineSeries();
             lineSeries.Smooth = true;
             lineSeries.ItemsSource = points;
@@ -31,7 +33,7 @@ namespace TrimCurveApp {
             Series.Add(lineSeries);
 
             PlotAreaBackground = OxyColor.FromArgb(255, 255, 255, 255);
-            SetPlotModelAxes(points, xAxis, yAxis);
+            SetPlotModelAxes(points, _xAxis, _yAxis);
         }
 
 

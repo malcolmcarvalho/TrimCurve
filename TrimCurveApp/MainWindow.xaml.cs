@@ -17,6 +17,11 @@ namespace TrimCurveApp {
             AbsolutePowerGraph.InvalidatePlot();
             PowerSavingsGraph.InvalidatePlot();
             SFOCGraph.InvalidatePlot();
+            DraftAtAftBarGraph.InvalidatePlot();
+            DraftAtFwdBarGraph.InvalidatePlot();
+
+            ActualAftTextBlock.Text = Convert.ToString(vm.DraftAtAft);
+            OptimalAftTextBlock.Text = Convert.ToString(vm.DraftAtFwd);
         }
 
         private void ShowTrimCurve_Click(object sender, RoutedEventArgs e) {

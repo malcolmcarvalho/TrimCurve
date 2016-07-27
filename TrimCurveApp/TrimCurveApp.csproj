@@ -74,6 +74,7 @@
     </ApplicationDefinition>
     <Compile Include="BindingProxy.cs" />
     <Compile Include="TextBoxMaskBehavior.cs" />
+    <Compile Include="TrimCurveOxyPlotBarGraphModel.cs" />
     <Compile Include="TrimCurveOxyplotModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -164,6 +165,9 @@
       <Isolated>False</Isolated>
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Aft-OptimalvsActual.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

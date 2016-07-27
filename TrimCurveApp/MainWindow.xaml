@@ -61,7 +61,7 @@
                         <TextBlock Text="Power (kW)" />
                     </TabItem.Header>
                     <StackPanel Orientation="Vertical">
-                        <oxy:PlotView Name="AbsolutePowerGraph" Grid.Row="0" Grid.Column="0" Height="400"
+                        <oxy:PlotView Name="AbsolutePowerGraph" Grid.Row="0" Grid.Column="0" Height="350"
                                       Model="{Binding AbsolutePowerUsagePlotModel}"/>
                     </StackPanel>
                 </TabItem>
@@ -101,7 +101,7 @@
                                             <Setter Property="ContentTemplate">
                                                 <Setter.Value>
                                                     <DataTemplate>
-                                                    <ItemsControl ItemsSource="{Binding Data.HeadersList,
+                                                        <ItemsControl ItemsSource="{Binding Data.HeadersList,
                                                                     Source={StaticResource proxy}}">
                                                             <ItemsControl.ItemsPanel>
                                                                 <ItemsPanelTemplate>
@@ -198,15 +198,17 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
                         <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at aft (m):" Grid.Row="0" Grid.Column="0"/>
-                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Text="20"  Grid.Row="0" Grid.Column="1"
+                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Grid.Row="0" Grid.Column="1"
                                      local:TextBoxMaskBehavior.Mask="Decimal"
                                      local:TextBoxMaskBehavior.MinimumValue="0"
-                                     local:TextBoxMaskBehavior.MaximumValue="20"/>
+                                     local:TextBoxMaskBehavior.MaximumValue="20"
+                                 Text="{Binding Mode=TwoWay, Path=DraftAtAft}"/>
                         <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Draft at fwd (m):" Grid.Row="1" Grid.Column="0"/>
-                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Text="20" Grid.Row="1" Grid.Column="1"
+                        <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Grid.Row="1" Grid.Column="1"
                                      local:TextBoxMaskBehavior.Mask="Decimal"
                                      local:TextBoxMaskBehavior.MinimumValue="0"
-                                     local:TextBoxMaskBehavior.MaximumValue="20"/>
+                                     local:TextBoxMaskBehavior.MaximumValue="20"
+                                 Text="{Binding Mode=TwoWay, Path=DraftAtFwd}"/>
                         <Label Style="{StaticResource ShipDetailLabelStyle}" Content="Present trim (m):" Grid.Row="2" Grid.Column="0"/>
                         <TextBox Style="{StaticResource ShipParticularEditableValueStyle}" Text="100" Grid.Row="2" Grid.Column="1"
                                      local:TextBoxMaskBehavior.Mask="Decimal"
@@ -230,5 +232,25 @@
                 <Image Width="300" Height="Auto" Grid.Column="1" Source="C:\Malcolm\GreenOptilfoat\TrimCurve\TrimCurveApp\Resources\Aft-Fwd-Draft.png"></Image>
             </StackPanel>
         </GroupBox>
+        <StackPanel Orientation="Horizontal" 
+                    Grid.Row="2" Grid.Column="1"
+                    HorizontalAlignment="Left" VerticalAlignment="Top"
+                    Height="300" Width="Auto" Margin="10,10,0,0"  >
+            <!--<Rectangle Height="300" Width="50">
+                <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="Green" Offset="0" />
+                        <GradientStop Color="Orange" Offset="1" />
+                    </LinearGradientBrush>
+                </Rectangle.Fill>
+            </Rectangle>-->
+            <oxy:PlotView Name="DraftAtAftBarGraph" Width="80" Height="300" 
+                          Model="{Binding DraftAtAftPlotModel}"/>
+            <Image Source="Resources\Aft-OptimalvsActual.png"/>
+            <oxy:PlotView Name="DraftAtFwdBarGraph" Width="80" Height="300" 
+                          Model="{Binding DraftAtFwdPlotModel}"/>
+        </StackPanel>
+        <TextBlock x:Name="ActualAftTextBlock" FontSize="20" Grid.Column="1" HorizontalAlignment="Left" Margin="225.2,76,0,0" Grid.Row="2" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="44" Width="104" RenderTransformOrigin="0.234,6.164"></TextBlock>
+        <TextBlock x:Name="OptimalAftTextBlock" FontSize="20" Grid.Column="1" HorizontalAlignment="Left" Margin="211.2,223,0,0" Grid.Row="2" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Height="44" Width="104" RenderTransformOrigin="0.234,6.164"></TextBlock>
     </Grid>
 </Window>

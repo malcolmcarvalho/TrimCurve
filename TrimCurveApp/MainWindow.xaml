@@ -6,7 +6,7 @@
         xmlns:oxy="clr-namespace:OxyPlot.Wpf;assembly=OxyPlot.Wpf" 
         xmlns:local="clr-namespace:TrimCurveApp"
         mc:Ignorable="d"
-        Title="Trim Curve" Height="550" Width="1000"
+        Title="GreenFLOAT" Height="550" Width="1000"
         ResizeMode="NoResize">
     <Window.Resources>
         <Style x:Key="ShipDetailLabelStyle" TargetType="Label">

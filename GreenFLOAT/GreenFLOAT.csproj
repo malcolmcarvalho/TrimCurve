@@ -74,8 +74,8 @@
     </ApplicationDefinition>
     <Compile Include="BindingProxy.cs" />
     <Compile Include="TextBoxMaskBehavior.cs" />
-    <Compile Include="TrimCurveOxyPlotBarGraphModel.cs" />
-    <Compile Include="TrimCurveOxyplotModel.cs" />
+    <Compile Include="GreenFLOATOxyPlotBarGraphModel.cs" />
+    <Compile Include="GreenFLOATOxyplotModel.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -5,14 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace TrimCurveApp {
-    class TrimCurveOxyplotModel : PlotModel {
+namespace GreenFLOAT {
+    class GreenFLOATOxyplotModel : PlotModel {
         private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FF0000FF");
 
         private readonly string _xAxis;
         private readonly string _yAxis;
 
-        public TrimCurveOxyplotModel(string xAxis, string yAxis) {
+        public GreenFLOATOxyplotModel(string xAxis, string yAxis) {
             _xAxis = xAxis;
             _yAxis = yAxis;
         }

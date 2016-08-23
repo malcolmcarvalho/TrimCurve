@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace TrimCurveApp {
+namespace GreenFLOAT {
     public class BindingProxy : Freezable {
         #region Overrides of Freezable
 

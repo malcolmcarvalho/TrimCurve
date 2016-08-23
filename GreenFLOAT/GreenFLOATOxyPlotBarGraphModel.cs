@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Windows;
 
-namespace TrimCurveApp {
-    class TrimCurveOxyplotBarGraphModel : PlotModel {
+namespace GreenFLOAT {
+    class GreenFLOATOxyplotBarGraphModel : PlotModel {
         private static OxyColor LINE_SERIES_COLOR = OxyColor.Parse("#FF0000FF");
 
-        public TrimCurveOxyplotBarGraphModel(string categoryName, double val) {
+        public GreenFLOATOxyplotBarGraphModel(string categoryName, double val) {
             CategoryName = categoryName;
             UpdateGraph(val);
         }

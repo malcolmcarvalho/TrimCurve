@@ -1,4 +1,4 @@
-﻿namespace TrimCurveApp {
+﻿namespace GreenFLOAT {
     class PowerConsumptionRecord {
         public double Draft { get; private set; }
         public double Speed { get; private set; }

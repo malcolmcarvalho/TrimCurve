@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
 
-namespace TrimCurveApp {
+namespace GreenFLOAT {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -20,8 +20,8 @@ namespace TrimCurveApp {
             DraftAtAftBarGraph.InvalidatePlot();
             DraftAtFwdBarGraph.InvalidatePlot();
 
-            ActualAftTextBlock.Text = Convert.ToString(vm.DraftAtAft);
-            OptimalAftTextBlock.Text = Convert.ToString(vm.DraftAtFwd);
+            ActualTrimTextBlock.Text = Convert.ToString(vm.DraftAtAft);
+            OptimalTrimTextBlock.Text = Convert.ToString(vm.DraftAtFwd);
         }
 
         private void ShowTrimCurve_Click(object sender, RoutedEventArgs e) {

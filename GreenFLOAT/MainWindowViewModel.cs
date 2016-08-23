@@ -10,7 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 
-namespace TrimCurveApp {
+namespace GreenFLOAT {
     class PowerSavingsForSpeed {
         public List<string> Savings { get; set; }
         public PowerSavingsForSpeed() {
@@ -28,12 +28,12 @@ namespace TrimCurveApp {
         private static string SPEED_IN_KNOTS = "Speed (Knots)";
         private static string FUEL_CONSUMPTION = "Fuel Consumption (g/KWh)";
 
-        public TrimCurveOxyplotModel AbsolutePowerUsagePlotModel { get; private set; }
-        public TrimCurveOxyplotModel PowerSavingsPlotModel { get; private set; }
-        public TrimCurveOxyplotModel SFOCPlotModel { get; private set; }
+        public GreenFLOATOxyplotModel AbsolutePowerUsagePlotModel { get; private set; }
+        public GreenFLOATOxyplotModel PowerSavingsPlotModel { get; private set; }
+        public GreenFLOATOxyplotModel SFOCPlotModel { get; private set; }
 
-        public TrimCurveOxyplotBarGraphModel DraftAtAftPlotModel { get; private set; }
-        public TrimCurveOxyplotBarGraphModel DraftAtFwdPlotModel { get; private set; }
+        public GreenFLOATOxyplotBarGraphModel DraftAtAftPlotModel { get; private set; }
+        public GreenFLOATOxyplotBarGraphModel DraftAtFwdPlotModel { get; private set; }
 
         public double Draft { get; set; }
         public double Speed { get; set; }
@@ -81,11 +81,11 @@ namespace TrimCurveApp {
 
             List<DataPoint> psPoints, puPoints;
             ComputePlotPoints(out puPoints, out psPoints);
-            AbsolutePowerUsagePlotModel = new TrimCurveOxyplotModel(TRIM, POWER_SAVINGS_PERCENTAGE) { Title = ABSOLUTE_POWER_USAGE };
-            PowerSavingsPlotModel = new TrimCurveOxyplotModel(TRIM, POWER_USAGE) { Title = POWER_SAVINGS };
-            SFOCPlotModel = new TrimCurveOxyplotModel(SPEED_IN_KNOTS, FUEL_CONSUMPTION) { Title = "SFOC" };
-            DraftAtAftPlotModel = new TrimCurveOxyplotBarGraphModel("Draft@Aft", DraftAtAft);
-            DraftAtFwdPlotModel = new TrimCurveOxyplotBarGraphModel("Draft@Fwd", DraftAtFwd);
+            AbsolutePowerUsagePlotModel = new GreenFLOATOxyplotModel(TRIM, POWER_SAVINGS_PERCENTAGE) { Title = ABSOLUTE_POWER_USAGE };
+            PowerSavingsPlotModel = new GreenFLOATOxyplotModel(TRIM, POWER_USAGE) { Title = POWER_SAVINGS };
+            SFOCPlotModel = new GreenFLOATOxyplotModel(SPEED_IN_KNOTS, FUEL_CONSUMPTION) { Title = "SFOC" };
+            DraftAtAftPlotModel = new GreenFLOATOxyplotBarGraphModel("Draft@Aft", DraftAtAft);
+            DraftAtFwdPlotModel = new GreenFLOATOxyplotBarGraphModel("Draft@Fwd", DraftAtFwd);
 
             UpdatePowerGraphs();
             ReadSFOCValuesFromXLS();
@@ -208,7 +208,7 @@ namespace TrimCurveApp {
             model.Annotations.Add(colorAnnotation);
         }
 
-        private void AddBackgroundColorsToDraftPlotModel(TrimCurveOxyplotBarGraphModel model) {
+        private void AddBackgroundColorsToDraftPlotModel(GreenFLOATOxyplotBarGraphModel model) {
             //var image = GetGradientImage(OxyColors.Orange, OxyColors.Green);
             //var colorAnnotation = new ImageAnnotation {
             //    ImageSource = image,

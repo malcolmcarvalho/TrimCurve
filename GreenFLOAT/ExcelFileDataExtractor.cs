@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Windows;
 using Excel = Microsoft.Office.Interop.Excel;
 
-namespace TrimCurveApp {
+namespace GreenFLOAT {
     static class ExcelFileDataExtractor {
         public static List<PowerConsumptionRecord> ReadPowerValuesFromXLS() {
-            const string TRIM_CURVE_FILE_NAME = @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\TrimCurveModifiedSample.xlsx";
+            const string TRIM_CURVE_FILE_NAME = @"C:\GreenFLOAT\Ship1\TrimCurveSample.xlsx";
             Excel.Application xlApp;
             Excel.Workbook xlWorkbook;
             Excel.Worksheet xlWorksheet;
@@ -47,7 +47,7 @@ namespace TrimCurveApp {
         }
 
         public static List<DataPoint> ReadSFOCValuesFromXLS() {
-            const string SFOC_FILE_NAME = @"C:\Malcolm\GreenOptilfoat\TrimCurve\Data\SFOC.xlsx";
+            const string SFOC_FILE_NAME = @"C:\GreenFLOAT\Ship1\SFOC.xlsx";
             Excel.Application xlApp;
             Excel.Workbook xlWorkbook;
             Excel.Worksheet xlWorksheet;

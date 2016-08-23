@@ -1,15 +1,6 @@
-TrimCurve/bin
-TrimCurve/obj
-TrimCurveApp/bin
-TrimCurveApp/obj
-TrimCurveApp/publish/
+GreenFLOAT/bin
+GreenFLOAT/obj
+GreenFLOAT/publish/
 *.suo
-Data/~$TrimCurveModifiedSample.xlsx
-Data/Sample_Data_GreenFLOAT - Copy.xlsx
-Data/Sample_Data_GreenFLOAT.xlsx
-Data/TrimCurveModifiedSample - Copy.xlsx
-TrimCurveApp/MainWindowViewModel.cs.orig
-TrimCurveApp/obj/Debug/DesignTimeResolveAssemblyReferencesInput.cache
-TrimCurveApp/obj/Debug/MainWindow.g.i.cs
-TrimCurveApp/obj/Debug/TrimCurveApp.csproj.FileListAbsolute.txt
-TrimCurveApp/obj/Debug/TrimCurveApp_MarkupCompile.i.cache
+*/Release
+*/Debug
